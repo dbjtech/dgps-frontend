@@ -1,16 +1,21 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Select } from 'antd'
+import { TreeSelect } from 'antd'
 
-const { Option } = Select
+const { TreeNode } = TreeSelect
 
 export default class SideSelect extends Component {
 	static propTypes = {
-		// prop: PropTypes,
+		placeholder: PropTypes.string,
+	}
+
+	state = {
+		value: undefined,
 	}
 
 	onChange = (value) => {
-		console.log(`selected ${value}`)
+		console.log(value)
+		this.setState({ value })
 	}
 
 	onSearch = (val) => {
@@ -20,21 +25,33 @@ export default class SideSelect extends Component {
 	render() {
 		return (
 			<div>
-				<Select
+				<TreeSelect
 					showSearch
 					style={{ width: '100%' }}
-					placeholder='Select a point'
-					optionFilterProp='children'
+					value={this.state.value}
+					dropdownStyle={{
+						maxHeight: 400,
+						overflow: 'auto',
+					}}
+					placeholder='Please select'
+					allowClear
+					treeDefaultExpandAll
 					onChange={this.onChange}
-					onSearch={this.onSearch}
-					filterOption={(input, option) =>
-						option.props.children.toLowerCase().indexOf(input.toLowerCase()) >=
-						0
-					}>
-					<Option value='jack'>Jack</Option>
-					<Option value='lucy'>Lucy</Option>
-					<Option value='tom'>Tom</Option>
-				</Select>
+					open>
+					<TreeNode value='parent 1' title='parent 1' key='0-1'>
+						<TreeNode value='parent 1-0' title='parent 1-0' key='0-1-1'>
+							<TreeNode value='leaf1' title='my leaf' key='random' />
+							<TreeNode value='leaf2' title='your leaf' key='random1' />
+						</TreeNode>
+						<TreeNode value='parent 1-1' title='parent 1-1' key='random2'>
+							<TreeNode
+								value='sss'
+								title={<b style={{ color: '#08c' }}>sss</b>}
+								key='random3'
+							/>
+						</TreeNode>
+					</TreeNode>
+				</TreeSelect>
 			</div>
 		)
 	}
