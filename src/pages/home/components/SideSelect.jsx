@@ -23,7 +23,7 @@ export default class SideSelect extends Component {
 				<Select
 					showSearch
 					style={{ width: '100%' }}
-					placeholder='Select a person'
+					placeholder='Select a point'
 					optionFilterProp='children'
 					onChange={this.onChange}
 					onSearch={this.onSearch}

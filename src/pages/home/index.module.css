@@ -1,0 +1,14 @@
+.container {
+	max-width: 1200px;
+	margin: 0 auto;
+	border: 1px solid #ebedf0;
+}
+
+.division {
+	border: 1px solid #ebedf0;
+}
+
+.p {
+	margin: 0;
+	padding: 0;
+}
