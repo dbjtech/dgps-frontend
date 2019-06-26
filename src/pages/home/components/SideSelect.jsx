@@ -2,15 +2,32 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { TreeSelect } from 'antd'
 
-const { TreeNode } = TreeSelect
-
 export default class SideSelect extends Component {
 	static propTypes = {
 		placeholder: PropTypes.string,
+		isLargeScreen: PropTypes.bool,
 	}
 
 	state = {
 		value: undefined,
+		width: 0,
+		height: 0,
+	}
+
+	componentDidMount() {
+		this.updateWindowDimensions()
+		window.addEventListener('resize', this.updateWindowDimensions)
+	}
+
+	componentWillUnmount() {
+		window.removeEventListener('resize', this.updateWindowDimensions)
+	}
+
+	updateWindowDimensions = () => {
+		this.setState({
+			width: window.innerWidth,
+			height: window.innerHeight,
+		})
 	}
 
 	onChange = (value) => {
@@ -18,41 +35,68 @@ export default class SideSelect extends Component {
 		this.setState({ value })
 	}
 
-	onSearch = (val) => {
-		console.log('search:', val)
-	}
+	treeData = [
+		{
+			title: 'Node1',
+			value: '0-0',
+			key: '0-0',
+			children: [
+				{
+					title: 'Child Node1',
+					value: '0-0-1',
+					key: '0-0-1',
+				},
+				{
+					title: 'Child Node2',
+					value: '0-0-2',
+					key: '0-0-2',
+				},
+			],
+		},
+		{
+			title: 'Node2',
+			value: '0-1',
+			key: '0-1',
+		},
+	]
 
 	render() {
-		return (
-			<div>
-				<TreeSelect
-					showSearch
-					style={{ width: '100%' }}
-					value={this.state.value}
-					dropdownStyle={{
-						maxHeight: 400,
-						overflow: 'auto',
-					}}
-					placeholder='Please select'
-					allowClear
-					treeDefaultExpandAll
-					onChange={this.onChange}
-					open>
-					<TreeNode value='parent 1' title='parent 1' key='0-1'>
-						<TreeNode value='parent 1-0' title='parent 1-0' key='0-1-1'>
-							<TreeNode value='leaf1' title='my leaf' key='random' />
-							<TreeNode value='leaf2' title='your leaf' key='random1' />
-						</TreeNode>
-						<TreeNode value='parent 1-1' title='parent 1-1' key='random2'>
-							<TreeNode
-								value='sss'
-								title={<b style={{ color: '#08c' }}>sss</b>}
-								key='random3'
-							/>
-						</TreeNode>
-					</TreeNode>
-				</TreeSelect>
-			</div>
+		const treeSelect = this.props.isLargeScreen ? (
+			<TreeSelect
+				allowClear
+				dropdownStyle={{
+					height: 465,
+					overflow: 'auto',
+					display: this.state.width < 768 ? 'none' : null,
+				}}
+				placeholder={'结果显示框'}
+				searchPlaceholder={'搜索栏'}
+				showSearch
+				treeData={this.treeData}
+				treeDefaultExpandAll
+				value={this.state.value}
+				onChange={this.onChange}
+				style={{ width: '100%' }}
+				open={true}
+			/>
+		) : (
+			<TreeSelect
+				allowClear
+				dropdownStyle={{
+					height: 465,
+					overflow: 'auto',
+				}}
+				placeholder={'结果显示框'}
+				searchPlaceholder={'搜索栏'}
+				showSearch
+				treeData={this.treeData}
+				treeDefaultExpandAll
+				value={this.state.value}
+				onChange={this.onChange}
+				style={{ width: '100%' }}
+			/>
 		)
+
+		return <div>{treeSelect}</div>
 	}
 }
