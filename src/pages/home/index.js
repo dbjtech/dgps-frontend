@@ -35,6 +35,7 @@ export default class Home extends Component {
 			.get(`/measure`)
 			.then((res) => {
 				const measure_data_list = res.data.measure_data_list
+				console.log(measure_data_list)
 				this.setState({ measure_data_list })
 			})
 			.catch((err) => console.log(err))
