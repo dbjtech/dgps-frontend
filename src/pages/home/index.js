@@ -18,8 +18,7 @@ export default class Home extends Component {
 		axios
 			.get(`/group`)
 			.then((res) => {
-				const group_list = res.data
-				console.log(group_list)
+				const group_list = res.data.group_list
 				this.setState({ group_list })
 			})
 			.catch((err) => console.log(err))
@@ -27,8 +26,7 @@ export default class Home extends Component {
 		axios
 			.get(`/device`)
 			.then((res) => {
-				const device_list = res.data
-				console.log(device_list)
+				const device_list = res.data.device_list
 				this.setState({ device_list })
 			})
 			.catch((err) => console.log(err))
@@ -36,25 +34,58 @@ export default class Home extends Component {
 		axios
 			.get(`/measure`)
 			.then((res) => {
-				const measure_data_list = res.data
-				console.log(measure_data_list)
+				const measure_data_list = res.data.measure_data_list
 				this.setState({ measure_data_list })
 			})
 			.catch((err) => console.log(err))
 	}
 
 	render() {
+		const getTreeData = () => {
+			if (this.state.group_list.length) {
+				const treeData = []
+				for (let item of this.state.group_list) {
+					const name = item.name
+					treeData.push({
+						title: name,
+						key: name,
+						value: name,
+						children: [],
+					})
+				}
+
+				for (let item of this.state.device_list) {
+					const index = treeData.findIndex(
+						(element) => item.group_name === element.title,
+					)
+					const sn = item.sn
+					const keyvalue = `${treeData[index].title}-${sn}`
+					treeData[index].children.push({
+						title: sn,
+						key: keyvalue,
+						value: keyvalue,
+					})
+				}
+
+				return treeData
+			}
+			return null
+		}
+
 		return (
 			<div className={styles.container}>
 				<Row>
 					{/* TODO: 基准点查询/选中 */}
 					<Col xs={0} md={8}>
 						{/* 这个是大屏专用，一直 open 的 */}
-						<SideSelect isLargeScreen={this.isLargeScreen} />
+						<SideSelect
+							isLargeScreen={this.isLargeScreen}
+							treeData={getTreeData()}
+						/>
 					</Col>
 					<Col xs={24} md={0}>
 						{/* 这个是小屏专用 */}
-						<SideSelect />
+						<SideSelect treeData={getTreeData()} />
 					</Col>
 					<Col xs={24} md={16} className={styles.division}>
 						{/* TODO: 根据用户选择的点渲染图像 */}

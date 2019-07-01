@@ -4,8 +4,9 @@ import { TreeSelect } from 'antd'
 
 export default class SideSelect extends Component {
 	static propTypes = {
-		placeholder: PropTypes.string,
+		// placeholder: PropTypes.string,
 		isLargeScreen: PropTypes.bool,
+		treeData: PropTypes.array,
 	}
 
 	state = {
@@ -36,30 +37,30 @@ export default class SideSelect extends Component {
 		this.setState({ value })
 	}
 
-	treeData = [
-		{
-			title: 'Node1',
-			value: '0-0',
-			key: '0-0',
-			children: [
-				{
-					title: 'Child Node1',
-					value: '0-0-1',
-					key: '0-0-1',
-				},
-				{
-					title: 'Child Node2',
-					value: '0-0-2',
-					key: '0-0-2',
-				},
-			],
-		},
-		{
-			title: 'Node2',
-			value: '0-1',
-			key: '0-1',
-		},
-	]
+	// treeData = [
+	// 	{
+	// 		title: 'Node1',
+	// 		value: '0-0',
+	// 		key: '0-0',
+	// 		children: [
+	// 			{
+	// 				title: 'Child Node1',
+	// 				value: '0-0-1',
+	// 				key: '0-0-1',
+	// 			},
+	// 			{
+	// 				title: 'Child Node2',
+	// 				value: '0-0-2',
+	// 				key: '0-0-2',
+	// 			},
+	// 		],
+	// 	},
+	// 	{
+	// 		title: 'Node2',
+	// 		value: '0-1',
+	// 		key: '0-1',
+	// 	},
+	// ]
 
 	render() {
 		const treeSelect = this.props.isLargeScreen ? (
@@ -73,7 +74,8 @@ export default class SideSelect extends Component {
 				placeholder={'结果显示框'}
 				searchPlaceholder={'搜索栏'}
 				showSearch
-				treeData={this.treeData}
+				// treeData={this.treeData}
+				treeData={this.props.treeData}
 				treeDefaultExpandAll
 				value={this.state.value}
 				onChange={this.onChange}
@@ -90,7 +92,8 @@ export default class SideSelect extends Component {
 				placeholder={'结果显示框'}
 				searchPlaceholder={'搜索栏'}
 				showSearch
-				treeData={this.treeData}
+				// treeData={this.treeData}
+				treeData={this.props.treeData}
 				treeDefaultExpandAll
 				value={this.state.value}
 				onChange={this.onChange}
