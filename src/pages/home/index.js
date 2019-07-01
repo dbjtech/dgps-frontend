@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { Row, Col } from 'antd'
+import axios from 'axios'
 
 import SideSelect from './components/SideSelect.jsx'
 import GLChart from './components/GLChart.jsx'
@@ -8,7 +9,39 @@ import LineChart from './components/LineChart.jsx'
 import styles from './index.module.css'
 
 export default class Home extends Component {
+	// 别动，否则每次渲染都要重新计算
 	isLargeScreen = window.innerWidth > 768
+
+	state = { group_list: [], device_list: [], measure_data_list: [] }
+
+	componentDidMount() {
+		axios
+			.get(`/group`)
+			.then((res) => {
+				const group_list = res.data
+				console.log(group_list)
+				this.setState({ group_list })
+			})
+			.catch((err) => console.log(err))
+
+		axios
+			.get(`/device`)
+			.then((res) => {
+				const device_list = res.data
+				console.log(device_list)
+				this.setState({ device_list })
+			})
+			.catch((err) => console.log(err))
+
+		axios
+			.get(`/measure`)
+			.then((res) => {
+				const measure_data_list = res.data
+				console.log(measure_data_list)
+				this.setState({ measure_data_list })
+			})
+			.catch((err) => console.log(err))
+	}
 
 	render() {
 		return (

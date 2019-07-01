@@ -24,6 +24,7 @@ export default class SideSelect extends Component {
 	}
 
 	updateWindowDimensions = () => {
+		// 为保证实时响应，做成 state 而不是 props
 		this.setState({
 			width: window.innerWidth,
 			height: window.innerHeight,
