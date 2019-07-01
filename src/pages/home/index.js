@@ -7,6 +7,7 @@ import GLChart from './components/GLChart.jsx'
 import LineChart from './components/LineChart.jsx'
 
 import styles from './index.module.css'
+import { thisExpression } from '@babel/types'
 
 export default class Home extends Component {
 	// 别动，否则每次渲染都要重新计算
@@ -45,6 +46,7 @@ export default class Home extends Component {
 		const getTreeData = () => {
 			if (this.state.group_list.length) {
 				const treeData = []
+				// 分组
 				for (let item of this.state.group_list) {
 					const name = item.name
 					treeData.push({
@@ -55,17 +57,35 @@ export default class Home extends Component {
 					})
 				}
 
+				// 源点
 				for (let item of this.state.device_list) {
 					const index = treeData.findIndex(
 						(element) => item.group_name === element.title,
 					)
 					const sn = item.sn
-					const keyvalue = `${treeData[index].title}-${sn}`
+					const keyValue = `${treeData[index].title}-${sn}`
 					treeData[index].children.push({
 						title: sn,
-						key: keyvalue,
-						value: keyvalue,
+						key: keyValue,
+						value: keyValue,
+						children: [],
 					})
+
+					// 目标点
+					for (let otherItem of this.state.device_list) {
+						if (otherItem !== item) {
+							const otherIndex = treeData[index].children.findIndex(
+								(element) => sn === element.title,
+							)
+							const otherSn = otherItem.sn
+							const otherKeyValue = `${keyValue}-${otherSn}`
+							treeData[index].children[otherIndex].children.push({
+								title: `${sn}->${otherSn}`,
+								key: otherKeyValue,
+								value: otherKeyValue,
+							})
+						}
+					}
 				}
 
 				return treeData

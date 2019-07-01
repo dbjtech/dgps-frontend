@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import ReactEcharts from 'echarts-for-react'
+// import echarts from 'echarts'
 
 export default class LineChart extends Component {
 	static propTypes = {
@@ -14,7 +15,7 @@ export default class LineChart extends Component {
 
 		var data = [Math.random() * 300]
 
-		for (var i = 1; i < 20000; i++) {
+		for (var i = 1; i < 2000; i++) {
 			var now = new Date((base += oneDay))
 			date.push(
 				[now.getFullYear(), now.getMonth() + 1, now.getDate()].join('/'),
@@ -25,19 +26,6 @@ export default class LineChart extends Component {
 	}
 
 	getOption = () => ({
-		// xAxis: {
-		// 	type: 'category',
-		// 	data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-		// },
-		// yAxis: {
-		// 	type: 'value',
-		// },
-		// series: [
-		// 	{
-		// 		data: [820, 932, 901, 934, 1290, 1330, 1320],
-		// 		type: 'line',
-		// 	},
-		// ],
 		tooltip: {
 			trigger: 'axis',
 			position: function(pt) {
@@ -45,7 +33,6 @@ export default class LineChart extends Component {
 			},
 		},
 		title: {
-			left: 'center',
 			text: '大数据量面积图',
 		},
 		toolbox: {
