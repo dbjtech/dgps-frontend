@@ -10,6 +10,30 @@ export default class LineChart extends Component {
 		title: PropTypes.string,
 	}
 
+	state = {
+		dataList: [],
+		timeList: [],
+	}
+
+	componentDidUpdate(prevProps, prevState) {
+		if (
+			this.props.dataList !== prevState.dataList &&
+			this.props.timeList !== prevState.timeList
+		) {
+			this.setState(
+				{
+					dataList: this.props.dataList,
+					timeList: this.props.timeList,
+				},
+				() => {
+					const echarts_instance = this.echarts_react.getEchartsInstance()
+					echarts_instance.clear()
+					echarts_instance.setOption(this.getOption())
+				},
+			)
+		}
+	}
+
 	getOption = () => ({
 		title: {
 			text: this.props.title,
@@ -17,7 +41,7 @@ export default class LineChart extends Component {
 		xAxis: {
 			type: 'category',
 			// boundaryGap: false,
-			data: this.props.timeList,
+			data: this.state.timeList,
 		},
 		yAxis: {
 			type: 'value',
@@ -52,16 +76,16 @@ export default class LineChart extends Component {
 		},
 		toolbox: {
 			feature: {
-				dataZoom: {
-					yAxisIndex: 'none',
-				},
+				// dataZoom: {
+				// 	yAxisIndex: 'none',
+				// },
 				restore: {},
 				saveAsImage: {},
 			},
 		},
 		series: [
 			{
-				name: '模拟数据',
+				name: '测量数据',
 				type: 'line',
 				smooth: true,
 				symbol: 'none',
@@ -69,7 +93,14 @@ export default class LineChart extends Component {
 				itemStyle: {
 					color: 'rgb(255, 70, 131)',
 				},
-				data: this.props.dataList,
+				lineStyle: {
+					// 重新渲染的是线的样式
+					width: 1,
+				},
+				areaStyle: {
+					color: 'rgb(255, 70, 131)',
+				},
+				data: this.state.dataList,
 			},
 		],
 	})
@@ -78,7 +109,13 @@ export default class LineChart extends Component {
 		console.log('line chart render')
 		return (
 			<div>
-				<ReactEcharts option={this.getOption()} style={{ width: '100%' }} />
+				<ReactEcharts
+					option={this.getOption()}
+					style={{ width: '100%' }}
+					ref={(e) => {
+						this.echarts_react = e
+					}}
+				/>
 			</div>
 		)
 	}
