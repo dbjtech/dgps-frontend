@@ -19,10 +19,34 @@ export default class GLChart extends Component {
 			var z = t + 2.0 * Math.sin(75 * t)
 			data.push([x, y, z])
 		}
+		// console.log(data)
 		return data
 	}
 
 	getOption = () => ({
+		grid3D: {
+			viewControl: {
+				projection: 'orthographic',
+			},
+		},
+		xAxis3D: {
+			type: 'value',
+		},
+		yAxis3D: {
+			type: 'value',
+		},
+		zAxis3D: {
+			type: 'value',
+		},
+		series: [
+			{
+				type: 'line3D',
+				data: this.getData(),
+				lineStyle: {
+					width: 3,
+				},
+			},
+		],
 		tooltip: {},
 		backgroundColor: '#fff',
 		visualMap: {
@@ -46,29 +70,6 @@ export default class GLChart extends Component {
 				],
 			},
 		},
-		xAxis3D: {
-			type: 'value',
-		},
-		yAxis3D: {
-			type: 'value',
-		},
-		zAxis3D: {
-			type: 'value',
-		},
-		grid3D: {
-			viewControl: {
-				projection: 'orthographic',
-			},
-		},
-		series: [
-			{
-				type: 'line3D',
-				data: this.getData(),
-				lineStyle: {
-					width: 3,
-				},
-			},
-		],
 	})
 
 	render() {

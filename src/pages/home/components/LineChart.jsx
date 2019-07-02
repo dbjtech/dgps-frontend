@@ -106,7 +106,7 @@ export default class LineChart extends Component {
 	})
 
 	render() {
-		console.log('line chart render')
+		// console.log('line chart render')
 		return (
 			<div>
 				<ReactEcharts

@@ -58,12 +58,20 @@ export default class Home extends Component {
 				// }
 				// console.log(measure_data_list_valid)
 
-				this.setState({ measure_data_list })
+				this.setState({ measure_data_list }, () => {
+					// 读取数据之后默认展示一组先
+					this.changeSelect(
+						`${this.state.group_list[0].name}-${this.state.device_list[0].sn}-${
+							this.state.device_list[1].sn
+						}`,
+					)
+				})
 			})
 			.catch((err) => console.log(err))
 	}
 
 	changeSelect = (value) => {
+		console.log(value)
 		// 小屏点击展开时会误触发
 		if (!value) return
 
@@ -98,77 +106,89 @@ export default class Home extends Component {
 		}
 	}
 
-	render() {
-		const getTreeData = () => {
-			if (this.state.group_list.length) {
-				const treeData = []
-				// 分组
-				for (let item of this.state.group_list) {
-					const name = item.name
-					treeData.push({
-						title: name,
-						key: name,
-						value: name,
-						children: [],
-					})
-				}
+	getTreeData = () => {
+		if (this.state.group_list.length && this.state.device_list.length) {
+			const treeData = []
+			// 分组
+			for (let item of this.state.group_list) {
+				const name = item.name
+				treeData.push({
+					title: name,
+					key: name,
+					value: name,
+					children: [],
+				})
+			}
 
-				// 源点
-				for (let item of this.state.device_list) {
-					const index = treeData.findIndex(
-						(element) => item.group_name === element.title,
-					)
-					const sn = item.sn
-					const keyValue = `${treeData[index].title}-${sn}`
-					treeData[index].children.push({
-						title: sn,
-						key: keyValue,
-						value: keyValue,
-						children: [],
-					})
+			// 源点
+			for (let item of this.state.device_list) {
+				const index = treeData.findIndex(
+					(element) => item.group_name === element.title,
+				)
+				const sn = item.sn
+				const keyValue = `${treeData[index].title}-${sn}`
+				treeData[index].children.push({
+					title: sn,
+					key: keyValue,
+					value: keyValue,
+					children: [],
+				})
 
-					// 目标点
-					for (let otherItem of this.state.device_list) {
-						if (otherItem !== item) {
-							const otherIndex = treeData[index].children.findIndex(
-								(element) => sn === element.title,
-							)
-							const otherSn = otherItem.sn
-							const otherKeyValue = `${keyValue}-${otherSn}`
-							treeData[index].children[otherIndex].children.push({
-								title: `${sn}->${otherSn}`,
-								key: otherKeyValue,
-								value: otherKeyValue,
-							})
-						}
+				// 目标点
+				for (let otherItem of this.state.device_list) {
+					if (otherItem !== item) {
+						const otherIndex = treeData[index].children.findIndex(
+							(element) => sn === element.title,
+						)
+						const otherSn = otherItem.sn
+						const otherKeyValue = `${keyValue}-${otherSn}`
+						treeData[index].children[otherIndex].children.push({
+							title: `${sn}->${otherSn}`,
+							key: otherKeyValue,
+							value: otherKeyValue,
+						})
 					}
 				}
-
-				return treeData
 			}
-			return null
-		}
 
+			return treeData
+		}
+		return null
+	}
+
+	render() {
 		return (
 			<div className={styles.container}>
 				<Row>
 					{/* 只能在 3d 图表这个 Row 内 */}
-					<Col xs={0} md={8} style={{ position: 'sticky', top: 0, zIndex: 10 }}>
+					<Col
+						xs={0}
+						md={8}
+						style={{
+							position: 'sticky',
+							top: 0,
+							zIndex: 10,
+						}}
+					>
 						{/* 这个是大屏专用，一直 open 的 */}
 						<SideSelect
 							isLargeScreen={this.isLargeScreen}
-							treeData={getTreeData()}
+							treeData={this.getTreeData()}
 							changeSelect={this.changeSelect}
 						/>
 					</Col>
 					<Col
 						xs={24}
 						md={0}
-						style={{ position: 'sticky', top: 0, zIndex: 10 }}
+						style={{
+							position: 'sticky',
+							top: 0,
+							zIndex: 10,
+						}}
 					>
 						{/* 这个是小屏专用 */}
 						<SideSelect
-							treeData={getTreeData()}
+							treeData={this.getTreeData()}
 							changeSelect={this.changeSelect}
 						/>
 					</Col>
