@@ -33,7 +33,6 @@ export default class SideSelect extends Component {
 	}
 
 	handleChange = (value) => {
-		// console.log(value)
 		this.props.changeSelect(value)
 		this.setState({ value })
 	}

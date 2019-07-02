@@ -75,6 +75,7 @@ export default class LineChart extends Component {
 	})
 
 	render() {
+		console.log('line chart render')
 		return (
 			<div>
 				<ReactEcharts option={this.getOption()} style={{ width: '100%' }} />

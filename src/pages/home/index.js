@@ -48,7 +48,7 @@ export default class Home extends Component {
 			.get(`/measure`)
 			.then((res) => {
 				const measure_data_list = res.data.measure_data_list
-				console.log(measure_data_list)
+				// console.log(measure_data_list)
 
 				// const measure_data_list_valid = Array(6).fill([])
 				// for (let i = 0; i < measure_data_list_valid.length; i += 1) {
@@ -64,8 +64,11 @@ export default class Home extends Component {
 	}
 
 	changeSelect = (value) => {
+		// 小屏点击展开时会误触发
+		if (!value) return
+
 		const selectionInfo = value.split('-')
-		console.log(selectionInfo)
+		// console.log(selectionInfo)
 
 		if (selectionInfo[2]) {
 			const src_dest_list = this.state.measure_data_list.filter(
@@ -73,7 +76,7 @@ export default class Home extends Component {
 					item.src_device_sn === selectionInfo[1] &&
 					item.dest_device_sn === selectionInfo[2],
 			)
-			console.log(src_dest_list)
+			// console.log(src_dest_list)
 			this.setState(src_dest_list)
 
 			const d_list = src_dest_list.map((item) => item.d)
