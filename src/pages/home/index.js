@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Row, Col } from 'antd'
 import axios from 'axios'
+import moment from 'moment'
 
 import SideSelect from './components/SideSelect.jsx'
 import GLChart from './components/GLChart.jsx'
@@ -17,6 +18,13 @@ export default class Home extends Component {
 		device_list: [],
 		measure_data_list: [],
 		src_dest_list: [],
+		vector: {
+			d_list: [],
+			x_list: [],
+			y_list: [],
+			z_list: [],
+			time_list: [],
+		},
 	}
 
 	componentDidMount() {
@@ -67,6 +75,23 @@ export default class Home extends Component {
 			)
 			console.log(src_dest_list)
 			this.setState(src_dest_list)
+
+			const d_list = src_dest_list.map((item) => item.d)
+			const x_list = src_dest_list.map((item) => item.x)
+			const y_list = src_dest_list.map((item) => item.y)
+			const z_list = src_dest_list.map((item) => item.z)
+			const time_list = src_dest_list.map((item) =>
+				moment(item.timestamp * 1000).format(`YYYY-MM-DD HH:mm:ss`),
+			)
+			this.setState({
+				vector: {
+					d_list,
+					x_list,
+					y_list,
+					z_list,
+					time_list,
+				},
+			})
 		}
 	}
 
@@ -148,16 +173,36 @@ export default class Home extends Component {
 				<Row>
 					{/* TODO: 根据用户选择的点渲染图像 */}
 					<Col xs={24} md={6} className={styles.division}>
-						<LineChart />
+						{/* d */}
+						<LineChart
+							dataList={this.state.vector.d_list}
+							timeList={this.state.vector.time_list}
+							title={`距离变化`}
+						/>
 					</Col>
 					<Col xs={24} md={6} className={styles.division}>
-						<LineChart />
+						{/* x */}
+						<LineChart
+							dataList={this.state.vector.x_list}
+							timeList={this.state.vector.time_list}
+							title={`x轴相对位置变化`}
+						/>
 					</Col>
 					<Col xs={24} md={6} className={styles.division}>
-						<LineChart />
+						{/* y */}
+						<LineChart
+							dataList={this.state.vector.y_list}
+							timeList={this.state.vector.time_list}
+							title={`y轴相对位置变化`}
+						/>
 					</Col>
 					<Col xs={24} md={6} className={styles.division}>
-						<LineChart />
+						{/* z */}
+						<LineChart
+							dataList={this.state.vector.z_list}
+							timeList={this.state.vector.time_list}
+							title={`z轴相对位置变化`}
+						/>
 					</Col>
 				</Row>
 			</div>
