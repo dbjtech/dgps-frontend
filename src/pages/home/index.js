@@ -152,8 +152,8 @@ export default class Home extends Component {
 		return (
 			<div className={styles.container}>
 				<Row>
-					{/* TODO: 基准点查询/选中 */}
-					<Col xs={0} md={8}>
+					{/* 只能在 3d 图表这个 Row 内 */}
+					<Col xs={0} md={8} style={{ position: 'sticky', top: 0, zIndex: 10 }}>
 						{/* 这个是大屏专用，一直 open 的 */}
 						<SideSelect
 							isLargeScreen={this.isLargeScreen}
@@ -161,7 +161,11 @@ export default class Home extends Component {
 							changeSelect={this.changeSelect}
 						/>
 					</Col>
-					<Col xs={24} md={0}>
+					<Col
+						xs={24}
+						md={0}
+						style={{ position: 'sticky', top: 0, zIndex: 10 }}
+					>
 						{/* 这个是小屏专用 */}
 						<SideSelect
 							treeData={getTreeData()}
@@ -174,7 +178,6 @@ export default class Home extends Component {
 					</Col>
 				</Row>
 				<Row>
-					{/* TODO: 根据用户选择的点渲染图像 */}
 					<Col xs={24} md={6} className={styles.division}>
 						{/* d */}
 						<LineChart
