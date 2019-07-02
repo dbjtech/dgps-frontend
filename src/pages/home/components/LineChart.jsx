@@ -10,47 +10,13 @@ export default class LineChart extends Component {
 		title: PropTypes.string,
 	}
 
-	getData = () => {
-		var base = +new Date(1968, 9, 3)
-		var oneDay = 24 * 3600 * 1000
-		var date = []
-
-		var data = [Math.random() * 300]
-
-		for (var i = 1; i < 2000; i++) {
-			var now = new Date((base += oneDay))
-			date.push(
-				[now.getFullYear(), now.getMonth() + 1, now.getDate()].join('/'),
-			)
-			data.push(Math.round((Math.random() - 0.5) * 20 + data[i - 1]))
-		}
-		// console.log(data)
-		return data
-	}
-
 	getOption = () => ({
-		tooltip: {
-			trigger: 'axis',
-			position: function(pt) {
-				return [pt[0], '10%']
-			},
-		},
 		title: {
 			text: this.props.title,
 		},
-		toolbox: {
-			feature: {
-				dataZoom: {
-					yAxisIndex: 'none',
-				},
-				restore: {},
-				saveAsImage: {},
-			},
-		},
 		xAxis: {
 			type: 'category',
-			boundaryGap: false,
-
+			// boundaryGap: false,
 			data: this.props.timeList,
 		},
 		yAxis: {
@@ -78,6 +44,21 @@ export default class LineChart extends Component {
 				},
 			},
 		],
+		tooltip: {
+			trigger: 'axis',
+			position: function(pt) {
+				return [pt[0], '10%']
+			},
+		},
+		toolbox: {
+			feature: {
+				dataZoom: {
+					yAxisIndex: 'none',
+				},
+				restore: {},
+				saveAsImage: {},
+			},
+		},
 		series: [
 			{
 				name: '模拟数据',
@@ -88,20 +69,6 @@ export default class LineChart extends Component {
 				itemStyle: {
 					color: 'rgb(255, 70, 131)',
 				},
-				// areaStyle: {
-				// 	color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-				// 		{
-				// 			offset: 0,
-				// 			color: 'rgb(255, 158, 68)',
-				// 		},
-				// 		{
-				// 			offset: 1,
-				// 			color: 'rgb(255, 70, 131)',
-				// 		},
-				// 	]),
-				// },
-
-				// data: this.getData(),
 				data: this.props.dataList,
 			},
 		],
