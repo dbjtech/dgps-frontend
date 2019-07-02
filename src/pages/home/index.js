@@ -7,13 +7,17 @@ import GLChart from './components/GLChart.jsx'
 import LineChart from './components/LineChart.jsx'
 
 import styles from './index.module.css'
-import { thisExpression } from '@babel/types'
 
 export default class Home extends Component {
 	// 别动，否则每次渲染都要重新计算
 	isLargeScreen = window.innerWidth > 768
 
-	state = { group_list: [], device_list: [], measure_data_list: [] }
+	state = {
+		group_list: [],
+		device_list: [],
+		measure_data_list: [],
+		src_dest_list: [],
+	}
 
 	componentDidMount() {
 		axios
@@ -37,9 +41,33 @@ export default class Home extends Component {
 			.then((res) => {
 				const measure_data_list = res.data.measure_data_list
 				console.log(measure_data_list)
+
+				// const measure_data_list_valid = Array(6).fill([])
+				// for (let i = 0; i < measure_data_list_valid.length; i += 1) {
+				// 	measure_data_list_valid[i] = measure_data_list.filter(
+				// 		(item) => item.valid === i,
+				// 	)
+				// }
+				// console.log(measure_data_list_valid)
+
 				this.setState({ measure_data_list })
 			})
 			.catch((err) => console.log(err))
+	}
+
+	changeSelect = (value) => {
+		const selectionInfo = value.split('-')
+		console.log(selectionInfo)
+
+		if (selectionInfo[2]) {
+			const src_dest_list = this.state.measure_data_list.filter(
+				(item) =>
+					item.src_device_sn === selectionInfo[1] &&
+					item.dest_device_sn === selectionInfo[2],
+			)
+			console.log(src_dest_list)
+			this.setState(src_dest_list)
+		}
 	}
 
 	render() {
@@ -102,11 +130,15 @@ export default class Home extends Component {
 						<SideSelect
 							isLargeScreen={this.isLargeScreen}
 							treeData={getTreeData()}
+							changeSelect={this.changeSelect}
 						/>
 					</Col>
 					<Col xs={24} md={0}>
 						{/* 这个是小屏专用 */}
-						<SideSelect treeData={getTreeData()} />
+						<SideSelect
+							treeData={getTreeData()}
+							changeSelect={this.changeSelect}
+						/>
 					</Col>
 					<Col xs={24} md={16} className={styles.division}>
 						{/* TODO: 根据用户选择的点渲染图像 */}

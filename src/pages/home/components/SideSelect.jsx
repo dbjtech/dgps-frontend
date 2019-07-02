@@ -4,15 +4,15 @@ import { TreeSelect } from 'antd'
 
 export default class SideSelect extends Component {
 	static propTypes = {
-		// placeholder: PropTypes.string,
 		isLargeScreen: PropTypes.bool,
 		treeData: PropTypes.array,
+		changeSelect: PropTypes.func,
 	}
 
 	state = {
-		value: undefined,
+		value: null,
 		width: 0,
-		height: 0,
+		// height: 0,
 	}
 
 	componentDidMount() {
@@ -28,39 +28,15 @@ export default class SideSelect extends Component {
 		// 为保证实时响应，做成 state 而不是 props
 		this.setState({
 			width: window.innerWidth,
-			height: window.innerHeight,
+			// height: window.innerHeight,
 		})
 	}
 
-	onChange = (value) => {
-		console.log(value)
+	handleChange = (value) => {
+		// console.log(value)
+		this.props.changeSelect(value)
 		this.setState({ value })
 	}
-
-	// treeData = [
-	// 	{
-	// 		title: 'Node1',
-	// 		value: '0-0',
-	// 		key: '0-0',
-	// 		children: [
-	// 			{
-	// 				title: 'Child Node1',
-	// 				value: '0-0-1',
-	// 				key: '0-0-1',
-	// 			},
-	// 			{
-	// 				title: 'Child Node2',
-	// 				value: '0-0-2',
-	// 				key: '0-0-2',
-	// 			},
-	// 		],
-	// 	},
-	// 	{
-	// 		title: 'Node2',
-	// 		value: '0-1',
-	// 		key: '0-1',
-	// 	},
-	// ]
 
 	render() {
 		const treeSelect = this.props.isLargeScreen ? (
@@ -78,7 +54,7 @@ export default class SideSelect extends Component {
 				treeData={this.props.treeData}
 				treeDefaultExpandAll
 				value={this.state.value}
-				onChange={this.onChange}
+				onChange={this.handleChange}
 				style={{ width: '100%' }}
 				open={true}
 			/>
@@ -96,7 +72,7 @@ export default class SideSelect extends Component {
 				treeData={this.props.treeData}
 				treeDefaultExpandAll
 				value={this.state.value}
-				onChange={this.onChange}
+				onChange={this.handleChange}
 				style={{ width: '100%' }}
 			/>
 		)
