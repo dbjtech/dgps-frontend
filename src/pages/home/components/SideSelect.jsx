@@ -19,7 +19,6 @@ export default class SideSelect extends Component {
 	state = {
 		value: null,
 		width: 0,
-		// height: 0,
 	}
 
 	componentDidMount() {
@@ -35,7 +34,6 @@ export default class SideSelect extends Component {
 		// 为保证实时响应，做成 state 而不是 props
 		this.setState({
 			width: window.innerWidth,
-			// height: window.innerHeight,
 		})
 	}
 
@@ -55,7 +53,6 @@ export default class SideSelect extends Component {
 				placeholder={'结果显示框'}
 				searchPlaceholder={'搜索栏'}
 				showSearch
-				// treeData={this.treeData}
 				treeData={this.props.treeData}
 				treeDefaultExpandAll
 				value={this.state.value}
@@ -73,7 +70,6 @@ export default class SideSelect extends Component {
 				placeholder={'结果显示框'}
 				searchPlaceholder={'搜索栏'}
 				showSearch
-				// treeData={this.treeData}
 				treeData={this.props.treeData}
 				treeDefaultExpandAll
 				value={this.state.value}

@@ -10,24 +10,25 @@ import LineChart from './components/LineChart.jsx'
 import styles from './index.module.css'
 
 export default class Home extends Component {
-	// 别动，否则每次渲染都要重新计算
+	// 初始化时计算，否则每次渲染都要重新计算
 	isLargeScreen = window.innerWidth > 768
 
 	state = {
 		group_list: [],
 		device_list: [],
 		measure_data_list: [],
+
 		src_dest_list: [],
-		vector: {
-			d_list: [],
-			x_list: [],
-			y_list: [],
-			z_list: [],
-			time_list: [],
-		},
+		d_list: [],
+		x_list: [],
+		y_list: [],
+		z_list: [],
+		time_list: [],
+
 		selection: '',
 	}
 
+	// 请求后端数据
 	componentDidMount() {
 		axios
 			.get(`/group`)
@@ -71,24 +72,19 @@ export default class Home extends Component {
 			.catch((err) => console.log(err))
 	}
 
-	changeSelection = (value) => {
-		// console.log(value)
-		// 小屏点击展开时会误触发
-		if (!value) return
+	// 用于双向绑定选中的点或边
+	changeSelection = (selection) => {
+		// 避免小屏点击展开时的误触发
+		if (!selection) return
 
-		const selectionInfo = value.split('-')
-		// console.log(selectionInfo)
+		const selectionInfo = selection.split('-')
 
 		if (selectionInfo[2]) {
-			// 用于双向绑定，暂时只能选边
-			this.setState({ selection: value })
-
 			const src_dest_list = this.state.measure_data_list.filter(
 				(item) =>
 					item.src_device_sn === selectionInfo[1] &&
 					item.dest_device_sn === selectionInfo[2],
 			)
-			// console.log(src_dest_list)
 			this.setState(src_dest_list)
 
 			const d_list = src_dest_list.map((item) => item.d)
@@ -99,13 +95,16 @@ export default class Home extends Component {
 				moment(item.timestamp * 1000).format(`YYYY-MM-DD HH:mm:ss`),
 			)
 			this.setState({
-				vector: {
-					d_list,
-					x_list,
-					y_list,
-					z_list,
-					time_list,
-				},
+				d_list,
+				x_list,
+				y_list,
+				z_list,
+				time_list,
+			})
+
+			// 用于双向绑定，暂时只能选边
+			this.setState({
+				selection,
 			})
 		}
 	}
@@ -138,7 +137,7 @@ export default class Home extends Component {
 					children: [],
 				})
 
-				// 目标点
+				// 目标点（边）
 				for (let otherItem of this.state.device_list) {
 					if (otherItem !== item) {
 						const otherIndex = treeData[index].children.findIndex(
@@ -164,7 +163,7 @@ export default class Home extends Component {
 		return (
 			<div className={styles.container}>
 				<Row>
-					{/* 只能在 3d 图表这个 Row 内 */}
+					{/* 粘性定位仅限这个 Row 内 */}
 					<Col
 						xs={0}
 						md={8}
@@ -205,34 +204,30 @@ export default class Home extends Component {
 				</Row>
 				<Row>
 					<Col xs={24} md={6} className={styles.division}>
-						{/* d */}
 						<LineChart
-							dataList={this.state.vector.d_list}
-							timeList={this.state.vector.time_list}
+							dataList={this.state.d_list}
+							timeList={this.state.time_list}
 							title={`距离变化`}
 						/>
 					</Col>
 					<Col xs={24} md={6} className={styles.division}>
-						{/* x */}
 						<LineChart
-							dataList={this.state.vector.x_list}
-							timeList={this.state.vector.time_list}
+							dataList={this.state.x_list}
+							timeList={this.state.time_list}
 							title={`x轴相对位置变化`}
 						/>
 					</Col>
 					<Col xs={24} md={6} className={styles.division}>
-						{/* y */}
 						<LineChart
-							dataList={this.state.vector.y_list}
-							timeList={this.state.vector.time_list}
+							dataList={this.state.y_list}
+							timeList={this.state.time_list}
 							title={`y轴相对位置变化`}
 						/>
 					</Col>
 					<Col xs={24} md={6} className={styles.division}>
-						{/* z */}
 						<LineChart
-							dataList={this.state.vector.z_list}
-							timeList={this.state.vector.time_list}
+							dataList={this.state.z_list}
+							timeList={this.state.time_list}
 							title={`z轴相对位置变化`}
 						/>
 					</Col>

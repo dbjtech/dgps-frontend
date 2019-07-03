@@ -39,11 +39,21 @@ export default class GLChart extends Component {
 			type: 'value',
 		},
 		series: [
+			// {
+			// 	type: 'line3D',
+			// 	data: this.getData(),
+			// 	lineStyle: {
+			// 		width: 3,
+			// 	},
+			// },
 			{
-				type: 'line3D',
-				data: this.getData(),
-				lineStyle: {
-					width: 3,
+				type: 'scatter3D',
+				symbolSize: 12,
+				encode: {
+					x: 'x',
+					y: 'y',
+					z: 'z',
+					tooltip: [0, 1, 2],
 				},
 			},
 		],
@@ -70,7 +80,10 @@ export default class GLChart extends Component {
 				],
 			},
 		},
-		dataset: { dimensions: ['d', 'x', 'y', 'z'] },
+		dataset: {
+			dimensions: ['x', 'y', 'z'],
+			source: [['x', 'y', 'z'], [0, 0, 0], [1, 1, 1], [5, 5, 5]],
+		},
 	})
 
 	render() {
