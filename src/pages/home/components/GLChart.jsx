@@ -70,6 +70,7 @@ export default class GLChart extends Component {
 				],
 			},
 		},
+		dataset: { dimensions: ['d', 'x', 'y', 'z'] },
 	})
 
 	render() {

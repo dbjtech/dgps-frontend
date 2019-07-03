@@ -25,6 +25,7 @@ export default class Home extends Component {
 			z_list: [],
 			time_list: [],
 		},
+		selection: '',
 	}
 
 	componentDidMount() {
@@ -60,7 +61,7 @@ export default class Home extends Component {
 
 				this.setState({ measure_data_list }, () => {
 					// 读取数据之后默认展示一组先
-					this.changeSelect(
+					this.changeSelection(
 						`${this.state.group_list[0].name}-${this.state.device_list[0].sn}-${
 							this.state.device_list[1].sn
 						}`,
@@ -70,8 +71,8 @@ export default class Home extends Component {
 			.catch((err) => console.log(err))
 	}
 
-	changeSelect = (value) => {
-		console.log(value)
+	changeSelection = (value) => {
+		// console.log(value)
 		// 小屏点击展开时会误触发
 		if (!value) return
 
@@ -79,6 +80,9 @@ export default class Home extends Component {
 		// console.log(selectionInfo)
 
 		if (selectionInfo[2]) {
+			// 用于双向绑定，暂时只能选边
+			this.setState({ selection: value })
+
 			const src_dest_list = this.state.measure_data_list.filter(
 				(item) =>
 					item.src_device_sn === selectionInfo[1] &&
@@ -174,7 +178,8 @@ export default class Home extends Component {
 						<SideSelect
 							isLargeScreen={this.isLargeScreen}
 							treeData={this.getTreeData()}
-							changeSelect={this.changeSelect}
+							changeSelection={this.changeSelection}
+							selection={this.state.selection}
 						/>
 					</Col>
 					<Col
@@ -189,7 +194,8 @@ export default class Home extends Component {
 						{/* 这个是小屏专用 */}
 						<SideSelect
 							treeData={this.getTreeData()}
-							changeSelect={this.changeSelect}
+							changeSelection={this.changeSelection}
+							selection={this.state.selection}
 						/>
 					</Col>
 					<Col xs={24} md={16} className={styles.division}>

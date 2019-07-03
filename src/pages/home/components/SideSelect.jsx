@@ -6,7 +6,14 @@ export default class SideSelect extends Component {
 	static propTypes = {
 		isLargeScreen: PropTypes.bool,
 		treeData: PropTypes.array,
-		changeSelect: PropTypes.func,
+		changeSelection: PropTypes.func,
+		selection: PropTypes.string,
+	}
+
+	componentDidUpdate(prevProps, prevState) {
+		if (this.props.selection !== prevProps.selection) {
+			this.setState({ value: this.props.selection })
+		}
 	}
 
 	state = {
@@ -33,8 +40,7 @@ export default class SideSelect extends Component {
 	}
 
 	handleChange = (value) => {
-		this.props.changeSelect(value)
-		this.setState({ value })
+		this.props.changeSelection(value)
 	}
 
 	render() {
