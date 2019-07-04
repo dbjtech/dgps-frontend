@@ -47,9 +47,11 @@ export default class Home extends Component {
 			.catch((err) => console.log(err))
 
 		axios
-			.get(`/measure`)
+			// FIXME: 最新数据 test02 都不收敛，取中间一部分进行展示
+			.get(`/measure?end_timestamp=1516948892`)
 			.then((res) => {
-				const measure_data_list = res.data.measure_data_list
+				// 保证数据右边最新
+				const measure_data_list = res.data.measure_data_list.reverse()
 				// console.log(measure_data_list)
 
 				// const measure_data_list_valid = Array(6).fill([])
@@ -156,6 +158,7 @@ export default class Home extends Component {
 				}
 			}
 
+			// console.log(treeData)
 			return treeData
 		}
 		return null
@@ -213,28 +216,28 @@ export default class Home extends Component {
 						<LineChart
 							dataList={this.state.d_list}
 							timeList={this.state.time_list}
-							title={`距离变化`}
+							title={`距离变化(单位: 米)`}
 						/>
 					</Col>
 					<Col xs={24} md={6} className={styles.division}>
 						<LineChart
 							dataList={this.state.x_list}
 							timeList={this.state.time_list}
-							title={`x轴相对位置变化`}
+							title={`x轴相对位置变化(单位: 米)`}
 						/>
 					</Col>
 					<Col xs={24} md={6} className={styles.division}>
 						<LineChart
 							dataList={this.state.y_list}
 							timeList={this.state.time_list}
-							title={`y轴相对位置变化`}
+							title={`y轴相对位置变化(单位: 米)`}
 						/>
 					</Col>
 					<Col xs={24} md={6} className={styles.division}>
 						<LineChart
 							dataList={this.state.z_list}
 							timeList={this.state.time_list}
-							title={`z轴相对位置变化`}
+							title={`z轴相对位置变化(单位: 米)`}
 						/>
 					</Col>
 				</Row>

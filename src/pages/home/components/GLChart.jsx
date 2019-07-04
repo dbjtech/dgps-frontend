@@ -52,9 +52,17 @@ export default class GLChart extends Component {
 			}
 			const data = matrix[maxLengthIndex]
 
-			console.log(data)
+			// console.log(data)
 
 			return data
+		}
+		return null
+	}
+
+	// TODO: 吴老师：不要刻意凑成需要的数据，利用 remda 处理出必要的数据就行了
+	regularizeData = (sourceData) => {
+		const treeData = this.props.treeData
+		if (treeData.length) {
 		}
 		return null
 	}
@@ -86,20 +94,19 @@ export default class GLChart extends Component {
 				type: 'scatter3D',
 				symbolSize: 12,
 				encode: {
-					x: 'x',
-					y: 'y',
-					z: 'z',
-					tooltip: [0, 1, 2],
+					// 此处调整要展示的信息
+					tooltip: [0, 1, 2, 3, 4],
 				},
 			},
 		],
+		// 悬浮信息显示器
 		tooltip: {},
 		backgroundColor: '#fff',
 		visualMap: {
 			show: false,
 			dimension: 2,
 			min: 0,
-			max: 5,
+			max: 10,
 			inRange: {
 				color: [
 					'#313695',
@@ -117,14 +124,39 @@ export default class GLChart extends Component {
 			},
 		},
 		dataset: {
-			dimensions: ['x', 'y', 'z'],
-			source: [['x', 'y', 'z'], [0, 0, 0], [1, 1, 1], [5, 5, 5]],
+			// FIXME: 为了上线直接写死
+			dimensions: ['x', 'y', 'z', '取样时间', '设备'],
+			source: [
+				['x', 'y', 'z', '取样时间', '设备'],
+				[0, 0, 0, '2018-01-26 14:41:32', '源点 test02'],
+				// x: 1.6217125308407137
+				// y: 0.568884563328475
+				// z: 0.020524667516560346
+				[
+					1.6217125308407137,
+					0.568884563328475,
+					0.020524667516560346,
+					'2018-01-26 14:41:32',
+					'终点 test03',
+				],
+				// x: 1.0287799663694828
+				// y: 0.4023813328955168
+				// z: -2.6467920582981828
+				[
+					1.0287799663694828,
+					0.4023813328955168,
+					-2.6467920582981828,
+					'2018-01-26 14:41:32',
+					'终点 test01',
+				],
+			],
+			// source: this.data,
 		},
 	})
 
 	render() {
 		// console.log(this.props.measure_data_list)
-		this.getLatestData()
+		// console.log(this.getLatestData())
 
 		return (
 			<div>
