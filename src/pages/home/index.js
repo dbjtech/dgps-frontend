@@ -18,7 +18,7 @@ export default class Home extends Component {
 		device_list: [],
 		measure_data_list: [],
 
-		src_dest_list: [],
+		// src_dest_list: [],
 		d_list: [],
 		x_list: [],
 		y_list: [],
@@ -67,6 +67,8 @@ export default class Home extends Component {
 							this.state.device_list[1].sn
 						}`,
 					)
+					// 在此处只调用一次 getTreeData, 避免反复运算
+					this.treeData = this.getTreeData()
 				})
 			})
 			.catch((err) => console.log(err))
@@ -85,7 +87,7 @@ export default class Home extends Component {
 					item.src_device_sn === selectionInfo[1] &&
 					item.dest_device_sn === selectionInfo[2],
 			)
-			this.setState(src_dest_list)
+			// this.setState(src_dest_list)
 
 			const d_list = src_dest_list.map((item) => item.d)
 			const x_list = src_dest_list.map((item) => item.x)
@@ -176,7 +178,7 @@ export default class Home extends Component {
 						{/* 这个是大屏专用，一直 open 的 */}
 						<SideSelect
 							isLargeScreen={this.isLargeScreen}
-							treeData={this.getTreeData()}
+							treeData={this.treeData}
 							changeSelection={this.changeSelection}
 							selection={this.state.selection}
 						/>
@@ -192,14 +194,18 @@ export default class Home extends Component {
 					>
 						{/* 这个是小屏专用 */}
 						<SideSelect
-							treeData={this.getTreeData()}
+							treeData={this.treeData}
 							changeSelection={this.changeSelection}
 							selection={this.state.selection}
 						/>
 					</Col>
 					<Col xs={24} md={16} className={styles.division}>
 						{/* TODO: 根据用户选择的点渲染图像 */}
-						<GLChart />
+						<GLChart
+							treeData={this.treeData}
+							measure_data_list={this.state.measure_data_list}
+							selection={this.state.selection}
+						/>
 					</Col>
 				</Row>
 				<Row>

@@ -5,22 +5,58 @@ import 'echarts-gl'
 
 export default class GLChart extends Component {
 	static propTypes = {
-		// prop: PropTypes
+		treeData: PropTypes.array,
+		measure_data_list: PropTypes.array,
+		selection: PropTypes.string,
+	}
+
+	state = { value: null }
+
+	componentDidUpdate(prevProps, prevState) {
+		if (this.props.selection !== prevProps.selection) {
+			this.setState({
+				value: this.props.selection,
+			})
+		}
 	}
 
 	EventsDict = {}
 
-	getData = () => {
-		var data = []
-		// Parametric curve
-		for (var t = 0; t < 25; t += 0.001) {
-			var x = (1 + 0.25 * Math.cos(75 * t)) * Math.cos(t)
-			var y = (1 + 0.25 * Math.cos(75 * t)) * Math.sin(t)
-			var z = t + 2.0 * Math.sin(75 * t)
-			data.push([x, y, z])
+	// 取得测量数据中，最新且设备最全的子集
+	getLatestData = () => {
+		const dataList = this.props.measure_data_list
+		if (dataList.length) {
+			// const data = []
+			const sqrtLength = Math.sqrt(dataList.length)
+			const matrix = []
+			let timestamp = 0
+			let groupIndex = -1
+			// 取出一部分最新数据，以便筛选，默认最新在前
+			for (let i = 0; i < sqrtLength; i += 1) {
+				if (dataList[i].timestamp !== timestamp) {
+					timestamp = dataList[i].timestamp
+					groupIndex += 1
+					matrix[groupIndex] = []
+				}
+				matrix[groupIndex].push(dataList[i])
+			}
+
+			let maxLengthIndex = 0
+			let maxLength = matrix[maxLengthIndex].length
+			// 根据集合大小找出最大子集
+			for (let i = 1; i < matrix.length; i += 1) {
+				if (matrix[i].length > maxLength) {
+					maxLength = matrix[i].length
+					maxLengthIndex = i
+				}
+			}
+			const data = matrix[maxLengthIndex]
+
+			console.log(data)
+
+			return data
 		}
-		// console.log(data)
-		return data
+		return null
 	}
 
 	getOption = () => ({
@@ -63,7 +99,7 @@ export default class GLChart extends Component {
 			show: false,
 			dimension: 2,
 			min: 0,
-			max: 30,
+			max: 5,
 			inRange: {
 				color: [
 					'#313695',
@@ -87,6 +123,9 @@ export default class GLChart extends Component {
 	})
 
 	render() {
+		// console.log(this.props.measure_data_list)
+		this.getLatestData()
+
 		return (
 			<div>
 				<ReactEcharts
