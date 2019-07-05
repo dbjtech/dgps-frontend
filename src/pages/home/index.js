@@ -9,6 +9,10 @@ import LineChart from './components/LineChart.jsx'
 
 import styles from './index.module.css'
 
+// 是否为开发模式
+const isDebug = false
+// const isDebug = true
+
 export default class Home extends Component {
 	// 初始化时计算，否则每次渲染都要重新计算
 	isLargeScreen = window.innerWidth > 768
@@ -31,7 +35,8 @@ export default class Home extends Component {
 	// 请求后端数据
 	componentDidMount() {
 		axios
-			.get(`/group`)
+			// .get(`/group`)
+			.get(`${isDebug ? '' : 'https://dgps.dbjtech.com'}/group`)
 			.then((res) => {
 				const group_list = res.data.group_list
 				this.setState({ group_list })
@@ -39,7 +44,7 @@ export default class Home extends Component {
 			.catch((err) => console.log(err))
 
 		axios
-			.get(`/device`)
+			.get(`${isDebug ? '' : 'https://dgps.dbjtech.com'}/device`)
 			.then((res) => {
 				const device_list = res.data.device_list
 				this.setState({ device_list })
@@ -48,7 +53,11 @@ export default class Home extends Component {
 
 		axios
 			// FIXME: 最新数据 test02 都不收敛，取中间一部分进行展示
-			.get(`/measure?end_timestamp=1516948892`)
+			.get(
+				`${
+					isDebug ? '' : 'https://dgps.dbjtech.com'
+				}/measure?end_timestamp=1516948892`,
+			)
 			.then((res) => {
 				// 保证数据右边最新
 				const measure_data_list = res.data.measure_data_list.reverse()

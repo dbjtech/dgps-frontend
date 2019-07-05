@@ -67,6 +67,11 @@ export default class LineChart extends Component {
 					shadowOffsetY: 2,
 				},
 			},
+			{
+				type: 'slider',
+				yAxisIndex: 0,
+				filterMode: 'empty',
+			},
 		],
 		tooltip: {
 			trigger: 'axis',

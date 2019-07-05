@@ -18,8 +18,8 @@
 	},
 	"scripts": {
 		"start": "react-app-rewired start",
-		"build": "react-scripts-rewired build",
-		"test": "react-scripts-rewired test",
+		"build": "react-app-rewired build && rm build/static/js/*.map",
+		"test": "react-app-rewired test",
 		"eject": "react-scripts eject"
 	},
 	"eslintConfig": {
@@ -37,5 +37,5 @@
 			"last 1 safari version"
 		]
 	},
-	"proxy": "http://dgps.dbjtech.com"
+	"proxy": "https://dgps.dbjtech.com"
 }
