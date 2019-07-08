@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Row, Col } from 'antd'
 import axios from 'axios'
 import moment from 'moment'
+import * as R from 'ramda'
 
 import SideSelect from './components/SideSelect.jsx'
 import GLChart from './components/GLChart.jsx'
@@ -22,7 +23,6 @@ export default class Home extends Component {
 		device_list: [],
 		measure_data_list: [],
 
-		// src_dest_list: [],
 		d_list: [],
 		x_list: [],
 		y_list: [],
@@ -30,6 +30,7 @@ export default class Home extends Component {
 		time_list: [],
 
 		selection: '',
+		glData: {},
 	}
 
 	// 请求后端数据
@@ -48,6 +49,30 @@ export default class Home extends Component {
 			.then((res) => {
 				const device_list = res.data.device_list
 				this.setState({ device_list })
+
+				// 利用 Ramda 进行数据处理，得到 GL 需要的数据结构
+				const groupedDevices = R.groupBy((device) => device.group_name)(
+					device_list,
+				)
+				// const groupedObject = R.map(R.map(R.omit(['group_name'])))(groupedDevice)
+				// const invertedObject = R.map(R.map(R.invertObj))(groupedObject)
+				// const mergedObject = R.map(R.mergeAll)(invertedObject)
+				const glData = R.map(
+					R.pipe(
+						R.map(
+							R.pipe(
+								R.omit(['group_name']),
+								R.invertObj,
+							),
+						),
+
+						R.mergeAll,
+
+						R.map(() => []),
+					),
+				)(groupedDevices)
+
+				this.setState({ glData })
 			})
 			.catch((err) => console.log(err))
 
