@@ -3,6 +3,7 @@ import { Row, Col } from 'antd'
 import axios from 'axios'
 import moment from 'moment'
 import * as R from 'ramda'
+import io from 'socket.io-client'
 
 import SideSelect from './components/SideSelect.jsx'
 import GLChart from './components/GLChart.jsx'
@@ -17,6 +18,8 @@ const urlPrefix = isDebug ? '' : 'https://dgps.dbjtech.com'
 
 const formatDate = (timestamp) =>
 	moment(timestamp * 1000).format(`YYYY-MM-DD HH:mm:ss`)
+
+const socket = io(urlPrefix)
 
 export default class Home extends Component {
 	// 初始化时计算，否则每次渲染都要重新计算
@@ -249,6 +252,7 @@ export default class Home extends Component {
 	}
 
 	render() {
+		console.log(socket)
 		return (
 			<div className={styles.container}>
 				<Row>

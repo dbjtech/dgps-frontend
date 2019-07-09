@@ -45,11 +45,9 @@ export default class GLChart extends Component {
 					glData: this.props.glData,
 				},
 				() => {
-					setTimeout(() => {
-						const echarts_instance = this.echarts_react.getEchartsInstance()
-						echarts_instance.clear()
-						echarts_instance.setOption(this.getOption())
-					}, 100)
+					const echarts_instance = this.echarts_react.getEchartsInstance()
+					echarts_instance.clear()
+					echarts_instance.setOption(this.getOption())
 				},
 			)
 		}
@@ -57,60 +55,114 @@ export default class GLChart extends Component {
 
 	EventsDict = {}
 
-	getOption = () => ({
-		grid3D: {
-			viewControl: {
-				projection: 'orthographic',
-			},
-		},
-		xAxis3D: {
-			type: 'value',
-		},
-		yAxis3D: {
-			type: 'value',
-		},
-		zAxis3D: {
-			type: 'value',
-		},
-		series: [
-			{
-				type: 'scatter3D',
-				symbolSize: 12,
-				encode: {
-					// 此处调整要展示的信息
-					tooltip: [0, 1, 2, 3, 4],
+	getOption = () => {
+		// 先处理 3D 折现，每条线都要单独的数组
+
+		const glData = this.state.glData
+		const option = {
+			grid3D: {
+				viewControl: {
+					projection: 'orthographic',
 				},
 			},
-		],
-		// 悬浮信息显示器
-		tooltip: {},
-		backgroundColor: '#fff',
-		visualMap: {
-			show: false,
-			dimension: 2,
-			min: 0,
-			max: 10,
-			inRange: {
-				color: [
-					'#313695',
-					'#4575b4',
-					'#74add1',
-					'#abd9e9',
-					'#e0f3f8',
-					'#ffffbf',
-					'#fee090',
-					'#fdae61',
-					'#f46d43',
-					'#d73027',
-					'#a50026',
-				],
+			xAxis3D: {
+				type: 'value',
 			},
-		},
-		dataset: {
-			dimensions: ['x', 'y', 'z', '取样时间', '设备'],
-			source: this.state.glData,
-		},
-	})
+			yAxis3D: {
+				type: 'value',
+			},
+			zAxis3D: {
+				type: 'value',
+			},
+			series: [
+				{
+					type: 'scatter3D',
+					symbolSize: 12,
+					encode: {
+						// 此处调整要展示的信息
+						tooltip: [0, 1, 2, 3, 4],
+					},
+				},
+				// {
+				// 	type: 'line3D',
+				// 	data: this.getLineData(),
+				// 	lineStyle: {
+				// 		width: 2,
+				// 	},
+				// },
+				// {
+				// 	type: 'line3D',
+				// 	data: this.getLineData2(),
+				// 	lineStyle: {
+				// 		width: 2,
+				// 	},
+				// },
+			],
+			// 悬浮信息显示器
+			tooltip: {},
+			backgroundColor: '#fff',
+			visualMap: {
+				show: false,
+				dimension: 2,
+				min: 0,
+				max: 10,
+				inRange: {
+					color: [
+						'#313695',
+						'#4575b4',
+						'#74add1',
+						'#abd9e9',
+						'#e0f3f8',
+						'#ffffbf',
+						'#fee090',
+						'#fdae61',
+						'#f46d43',
+						'#d73027',
+						'#a50026',
+					],
+				},
+			},
+			dataset: {
+				dimensions: ['x', 'y', 'z', '取样时间', '设备'],
+				source: glData,
+			},
+		}
+
+		glData.forEach((item, index) => {
+			if (index > 1) {
+				option.series.push({
+					type: 'line3D',
+					data: [[0, 0, 0], item],
+					lineStyle: {
+						width: 2,
+					},
+				})
+			}
+		})
+
+		return option
+	}
+
+	// getLineData = () => [
+	// 	[0, 0, 0],
+	// 	[
+	// 		1.6217125308407137,
+	// 		0.568884563328475,
+	// 		0.020524667516560346,
+	// 		'2018-01-26 14:41:32',
+	// 		'终点 test03',
+	// 	],
+	// ]
+	// getLineData2 = () => [
+	// 	[0, 0, 0],
+	// 	[
+	// 		1.0287799663694828,
+	// 		0.4023813328955168,
+	// 		-2.6467920582981828,
+	// 		'2018-01-26 14:41:32',
+	// 		'终点 test01',
+	// 	],
+	// ]
 
 	render() {
 		// console.log(this.getOption())
