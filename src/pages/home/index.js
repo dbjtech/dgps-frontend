@@ -15,6 +15,9 @@ const isDebug = false
 // const isDebug = true
 const urlPrefix = isDebug ? '' : 'https://dgps.dbjtech.com'
 
+const formatDate = (timestamp) =>
+	moment(timestamp * 1000).format(`YYYY-MM-DD HH:mm:ss`)
+
 export default class Home extends Component {
 	// 初始化时计算，否则每次渲染都要重新计算
 	isLargeScreen = window.innerWidth > 768
@@ -31,7 +34,8 @@ export default class Home extends Component {
 		time_list: [],
 
 		selection: '',
-		glData: {},
+		glTree: {},
+		glData: [['x', 'y', 'z', '取样时间', '设备']],
 	}
 
 	// 请求后端数据
@@ -57,7 +61,7 @@ export default class Home extends Component {
 				// const groupedObject = R.map(R.map(R.omit(['group_name'])))(groupedDevice)
 				// const invertedObject = R.map(R.map(R.invertObj))(groupedObject)
 				// const mergedObject = R.map(R.mergeAll)(invertedObject)
-				const glData = R.map(
+				const glTree = R.map(
 					R.pipe(
 						R.map(
 							R.pipe(
@@ -72,7 +76,7 @@ export default class Home extends Component {
 					),
 				)(groupedDevices)
 
-				this.setState({ glData })
+				this.setState({ glTree })
 			})
 			.catch((err) => console.log(err))
 
@@ -87,7 +91,7 @@ export default class Home extends Component {
 			.then((res) => {
 				// 保证数据右边最新
 				const measure_data_list = res.data.measure_data_list.reverse()
-				console.log(measure_data_list)
+				// console.log(measure_data_list)
 
 				// // 根据 valid 分组
 				// const measure_data_list_valid = Array(6).fill([])
@@ -119,6 +123,54 @@ export default class Home extends Component {
 
 		const selectionInfo = selection.split('-')
 
+		// 选中时含有点信息则处理 GL 数据
+		if (selectionInfo[1]) {
+			// 通过分组、源点信息找到所需终点
+			const dest_list = R.pipe(
+				R.prop(selectionInfo[0]),
+				R.omit([selectionInfo[1]]),
+				R.keys,
+			)(this.state.glTree)
+
+			// 调用 R.find 查找源点到终点的信息
+			const dest_data_list = R.map((item) =>
+				R.findLast(
+					R.both(
+						R.propEq('src_device_sn', selectionInfo[1]),
+						R.propEq('dest_device_sn', item),
+					),
+				)(this.state.measure_data_list),
+			)(dest_list)
+
+			const ragularPrecision = (value) => (value < 1e-100 ? 0 : value)
+
+			// 构造 glData 需要的终点信息
+			const destDataArray = R.map((item) => [
+				ragularPrecision(item.x),
+				ragularPrecision(item.y),
+				ragularPrecision(item.z),
+				formatDate(item.timestamp),
+				`终点 ${item.dest_device_sn}`,
+			])(dest_data_list)
+
+			// 构造 glData
+			const glData = [
+				['x', 'y', 'z', '取样时间', '设备'],
+				[
+					0,
+					0,
+					0,
+					formatDate(dest_data_list[0].timestamp),
+					`源点 ${selectionInfo[1]}`,
+				],
+			]
+
+			// 由于 R.flatten 是递归型铺平，无法直接用在 glData 中
+			R.reduce((acc, cur) => glData.push(cur))(glData)(destDataArray)
+
+			this.setState({ glData })
+		}
+
 		// 选中边时，处理折线图数据
 		if (selectionInfo[2]) {
 			const src_dest_list = this.state.measure_data_list.filter(
@@ -131,9 +183,7 @@ export default class Home extends Component {
 			const x_list = src_dest_list.map((item) => item.x)
 			const y_list = src_dest_list.map((item) => item.y)
 			const z_list = src_dest_list.map((item) => item.z)
-			const time_list = src_dest_list.map((item) =>
-				moment(item.timestamp * 1000).format(`YYYY-MM-DD HH:mm:ss`),
-			)
+			const time_list = src_dest_list.map((item) => formatDate(item.timestamp))
 			this.setState({
 				d_list,
 				x_list,
@@ -242,8 +292,8 @@ export default class Home extends Component {
 						{/* TODO: 根据用户选择的点渲染图像 */}
 						<GLChart
 							treeData={this.treeData}
-							measure_data_list={this.state.measure_data_list}
 							selection={this.state.selection}
+							glData={this.state.glData}
 						/>
 					</Col>
 				</Row>

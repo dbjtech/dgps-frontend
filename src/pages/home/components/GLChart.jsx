@@ -6,66 +6,56 @@ import 'echarts-gl'
 export default class GLChart extends Component {
 	static propTypes = {
 		treeData: PropTypes.array,
-		measure_data_list: PropTypes.array,
 		selection: PropTypes.string,
+		glData: PropTypes.array,
 	}
 
-	state = { value: null }
+	state = {
+		// glData: [
+		// 	['x', 'y', 'z', '取样时间', '设备'],
+		// 	[0, 0, 0, '2018-01-26 14:41:32', '源点 test02'],
+		// 	// x: 1.6217125308407137
+		// 	// y: 0.568884563328475
+		// 	// z: 0.020524667516560346
+		// 	[
+		// 		1.6217125308407137,
+		// 		0.568884563328475,
+		// 		0.020524667516560346,
+		// 		'2018-01-26 14:41:32',
+		// 		'终点 test03',
+		// 	],
+		// 	// x: 1.0287799663694828
+		// 	// y: 0.4023813328955168
+		// 	// z: -2.6467920582981828
+		// 	[
+		// 		1.0287799663694828,
+		// 		0.4023813328955168,
+		// 		-2.6467920582981828,
+		// 		'2018-01-26 14:41:32',
+		// 		'终点 test01',
+		// 	],
+		// ],
+		glData: [],
+	}
 
 	componentDidUpdate(prevProps, prevState) {
-		if (this.props.selection !== prevProps.selection) {
-			this.setState({
-				value: this.props.selection,
-			})
+		if (this.props.glData !== prevProps.glData) {
+			this.setState(
+				{
+					glData: this.props.glData,
+				},
+				() => {
+					setTimeout(() => {
+						const echarts_instance = this.echarts_react.getEchartsInstance()
+						echarts_instance.clear()
+						echarts_instance.setOption(this.getOption())
+					}, 100)
+				},
+			)
 		}
 	}
 
 	EventsDict = {}
-
-	// 取得测量数据中，最新且设备最全的子集
-	getLatestData = () => {
-		const dataList = this.props.measure_data_list
-		if (dataList.length) {
-			// const data = []
-			const sqrtLength = Math.sqrt(dataList.length)
-			const matrix = []
-			let timestamp = 0
-			let groupIndex = -1
-			// 取出一部分最新数据，以便筛选，默认最新在前
-			for (let i = 0; i < sqrtLength; i += 1) {
-				if (dataList[i].timestamp !== timestamp) {
-					timestamp = dataList[i].timestamp
-					groupIndex += 1
-					matrix[groupIndex] = []
-				}
-				matrix[groupIndex].push(dataList[i])
-			}
-
-			let maxLengthIndex = 0
-			let maxLength = matrix[maxLengthIndex].length
-			// 根据集合大小找出最大子集
-			for (let i = 1; i < matrix.length; i += 1) {
-				if (matrix[i].length > maxLength) {
-					maxLength = matrix[i].length
-					maxLengthIndex = i
-				}
-			}
-			const data = matrix[maxLengthIndex]
-
-			// console.log(data)
-
-			return data
-		}
-		return null
-	}
-
-	// TODO: 吴老师：不要刻意凑成需要的数据，利用 remda 处理出必要的数据就行了
-	regularizeData = (sourceData) => {
-		const treeData = this.props.treeData
-		if (treeData.length) {
-		}
-		return null
-	}
 
 	getOption = () => ({
 		grid3D: {
@@ -83,13 +73,6 @@ export default class GLChart extends Component {
 			type: 'value',
 		},
 		series: [
-			// {
-			// 	type: 'line3D',
-			// 	data: this.getData(),
-			// 	lineStyle: {
-			// 		width: 3,
-			// 	},
-			// },
 			{
 				type: 'scatter3D',
 				symbolSize: 12,
@@ -124,39 +107,13 @@ export default class GLChart extends Component {
 			},
 		},
 		dataset: {
-			// FIXME: 为了上线直接写死
 			dimensions: ['x', 'y', 'z', '取样时间', '设备'],
-			source: [
-				['x', 'y', 'z', '取样时间', '设备'],
-				[0, 0, 0, '2018-01-26 14:41:32', '源点 test02'],
-				// x: 1.6217125308407137
-				// y: 0.568884563328475
-				// z: 0.020524667516560346
-				[
-					1.6217125308407137,
-					0.568884563328475,
-					0.020524667516560346,
-					'2018-01-26 14:41:32',
-					'终点 test03',
-				],
-				// x: 1.0287799663694828
-				// y: 0.4023813328955168
-				// z: -2.6467920582981828
-				[
-					1.0287799663694828,
-					0.4023813328955168,
-					-2.6467920582981828,
-					'2018-01-26 14:41:32',
-					'终点 test01',
-				],
-			],
-			// source: this.data,
+			source: this.state.glData,
 		},
 	})
 
 	render() {
-		// console.log(this.props.measure_data_list)
-		// console.log(this.getLatestData())
+		// console.log(this.getOption())
 
 		return (
 			<div>
@@ -165,6 +122,9 @@ export default class GLChart extends Component {
 					style={{
 						width: '100%',
 						height: '500px',
+					}}
+					ref={(e) => {
+						this.echarts_react = e
 					}}
 				/>
 			</div>
