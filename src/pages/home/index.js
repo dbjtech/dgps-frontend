@@ -13,6 +13,7 @@ import styles from './index.module.css'
 // 是否为开发模式
 const isDebug = false
 // const isDebug = true
+const urlPrefix = isDebug ? '' : 'https://dgps.dbjtech.com'
 
 export default class Home extends Component {
 	// 初始化时计算，否则每次渲染都要重新计算
@@ -36,8 +37,7 @@ export default class Home extends Component {
 	// 请求后端数据
 	componentDidMount() {
 		axios
-			// .get(`/group`)
-			.get(`${isDebug ? '' : 'https://dgps.dbjtech.com'}/group`)
+			.get(`${urlPrefix}/group`)
 			.then((res) => {
 				const group_list = res.data.group_list
 				this.setState({ group_list })
@@ -45,7 +45,7 @@ export default class Home extends Component {
 			.catch((err) => console.log(err))
 
 		axios
-			.get(`${isDebug ? '' : 'https://dgps.dbjtech.com'}/device`)
+			.get(`${urlPrefix}/device`)
 			.then((res) => {
 				const device_list = res.data.device_list
 				this.setState({ device_list })
@@ -77,17 +77,19 @@ export default class Home extends Component {
 			.catch((err) => console.log(err))
 
 		axios
-			// FIXME: 最新数据 test02 都不收敛，取中间一部分进行展示
-			.get(
-				`${
-					isDebug ? '' : 'https://dgps.dbjtech.com'
-				}/measure?end_timestamp=1516948892`,
-			)
+			// // 最新数据 test02 都不收敛，取中间一部分进行展示
+			// .get(
+			// 	`${
+			// 		urlPrefix
+			// 	}/measure?end_timestamp=1516948892`,
+			// )
+			.get(`${urlPrefix}/measure`)
 			.then((res) => {
 				// 保证数据右边最新
 				const measure_data_list = res.data.measure_data_list.reverse()
-				// console.log(measure_data_list)
+				console.log(measure_data_list)
 
+				// // 根据 valid 分组
 				// const measure_data_list_valid = Array(6).fill([])
 				// for (let i = 0; i < measure_data_list_valid.length; i += 1) {
 				// 	measure_data_list_valid[i] = measure_data_list.filter(
@@ -117,13 +119,13 @@ export default class Home extends Component {
 
 		const selectionInfo = selection.split('-')
 
+		// 选中边时，处理折线图数据
 		if (selectionInfo[2]) {
 			const src_dest_list = this.state.measure_data_list.filter(
 				(item) =>
 					item.src_device_sn === selectionInfo[1] &&
 					item.dest_device_sn === selectionInfo[2],
 			)
-			// this.setState(src_dest_list)
 
 			const d_list = src_dest_list.map((item) => item.d)
 			const x_list = src_dest_list.map((item) => item.x)
