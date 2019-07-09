@@ -168,7 +168,7 @@ export default class Home extends Component {
 			// 由于 R.flatten 是递归型铺平，无法直接用在 glData 中
 			R.reduce((acc, cur) => glData.push(cur))(glData)(destDataArray)
 
-			this.setState({ glData })
+			this.setState({ glData, selection })
 		}
 
 		// 选中边时，处理折线图数据
@@ -193,9 +193,7 @@ export default class Home extends Component {
 			})
 
 			// 用于双向绑定，暂时只能选边
-			this.setState({
-				selection,
-			})
+			this.setState({ selection })
 		}
 	}
 
