@@ -5,8 +5,6 @@ import 'echarts-gl'
 
 export default class GLChart extends Component {
 	static propTypes = {
-		treeData: PropTypes.array,
-		selection: PropTypes.string,
 		glData: PropTypes.array,
 	}
 

@@ -4,6 +4,7 @@ import axios from 'axios'
 import moment from 'moment'
 import * as R from 'ramda'
 import io from 'socket.io-client'
+import { throttle } from 'lodash'
 
 import SideSelect from './components/SideSelect.jsx'
 import GLChart from './components/GLChart.jsx'
@@ -20,6 +21,7 @@ const formatDate = (timestamp) =>
 	moment(timestamp * 1000).format(`YYYY-MM-DD HH:mm:ss`)
 
 const socket = io(urlPrefix)
+let latestDataArray = []
 
 export default class Home extends Component {
 	// 初始化时计算，否则每次渲染都要重新计算
@@ -93,7 +95,9 @@ export default class Home extends Component {
 			.get(`${urlPrefix}/measure`)
 			.then((res) => {
 				// 保证数据右边最新
-				const measure_data_list = res.data.measure_data_list.reverse()
+				const measure_data_list = res.data.measure_data_list.sort(
+					(a, b) => a.timestamp - b.timestamp,
+				)
 				// console.log(measure_data_list)
 
 				// // 根据 valid 分组
@@ -107,16 +111,40 @@ export default class Home extends Component {
 
 				this.setState({ measure_data_list }, () => {
 					// 读取数据之后默认展示一组先
-					this.changeSelection(
-						`${this.state.group_list[0].name}-${this.state.device_list[0].sn}-${
-							this.state.device_list[1].sn
-						}`,
-					)
+					const selection = `${this.state.group_list[0].name}-${
+						this.state.device_list[0].sn
+					}-${this.state.device_list[1].sn}`
+					this.changeSelection(selection)
+					this.setState({ selection })
+
 					// 在此处只调用一次 getTreeData, 避免反复运算
 					this.treeData = this.getTreeData()
 				})
 			})
 			.catch((err) => console.log(err))
+
+		// socket 相关
+		socket.on('connect', () => {
+			console.log('socket connected')
+		})
+		const throttledFunc = throttle(() => {
+			if (latestDataArray.length > 0) {
+				console.log(latestDataArray)
+				const measure_data_list = this.state.measure_data_list
+				measure_data_list.push(R.flatten(latestDataArray))
+				measure_data_list.sort((a, b) => a.timestamp - b.timestamp)
+				// 重置新数据，避免重复处理
+				latestDataArray = []
+				this.setState(measure_data_list, () => {
+					this.changeSelection(this.state.selection)
+				})
+			}
+		}, 5000)
+		// 要保证所有新数据都被接收
+		socket.on('event', (data) => {
+			latestDataArray.push(data)
+			throttledFunc()
+		})
 	}
 
 	// 用于双向绑定选中的点或边
@@ -124,14 +152,14 @@ export default class Home extends Component {
 		// 避免小屏点击展开时的误触发
 		if (!selection) return
 
-		const selectionInfo = selection.split('-')
+		const [groupName, srcPoint, destPoint] = selection.split('-')
 
 		// 选中时含有点信息则处理 GL 数据
-		if (selectionInfo[1]) {
+		if (srcPoint) {
 			// 通过分组、源点信息找到所需终点
 			const dest_list = R.pipe(
-				R.prop(selectionInfo[0]),
-				R.omit([selectionInfo[1]]),
+				R.prop(groupName),
+				R.omit([srcPoint]),
 				R.keys,
 			)(this.state.glTree)
 
@@ -139,7 +167,7 @@ export default class Home extends Component {
 			const dest_data_list = R.map((item) =>
 				R.findLast(
 					R.both(
-						R.propEq('src_device_sn', selectionInfo[1]),
+						R.propEq('src_device_sn', srcPoint),
 						R.propEq('dest_device_sn', item),
 					),
 				)(this.state.measure_data_list),
@@ -159,13 +187,7 @@ export default class Home extends Component {
 			// 构造 glData
 			const glData = [
 				['x', 'y', 'z', '取样时间', '设备'],
-				[
-					0,
-					0,
-					0,
-					formatDate(dest_data_list[0].timestamp),
-					`源点 ${selectionInfo[1]}`,
-				],
+				[0, 0, 0, formatDate(dest_data_list[0].timestamp), `源点 ${srcPoint}`],
 			]
 
 			// 由于 R.flatten 是递归型铺平，无法直接用在 glData 中
@@ -175,11 +197,10 @@ export default class Home extends Component {
 		}
 
 		// 选中边时，处理折线图数据
-		if (selectionInfo[2]) {
+		if (destPoint) {
 			const src_dest_list = this.state.measure_data_list.filter(
 				(item) =>
-					item.src_device_sn === selectionInfo[1] &&
-					item.dest_device_sn === selectionInfo[2],
+					item.src_device_sn === srcPoint && item.dest_device_sn === destPoint,
 			)
 
 			const d_list = src_dest_list.map((item) => item.d)
@@ -252,7 +273,6 @@ export default class Home extends Component {
 	}
 
 	render() {
-		console.log(socket)
 		return (
 			<div className={styles.container}>
 				<Row>
@@ -291,12 +311,7 @@ export default class Home extends Component {
 						/>
 					</Col>
 					<Col xs={24} md={16} className={styles.division}>
-						{/* TODO: 根据用户选择的点渲染图像 */}
-						<GLChart
-							treeData={this.treeData}
-							selection={this.state.selection}
-							glData={this.state.glData}
-						/>
+						<GLChart glData={this.state.glData} />
 					</Col>
 				</Row>
 				<Row>
