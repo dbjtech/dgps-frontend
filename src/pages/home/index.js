@@ -12,20 +12,22 @@ import LineChart from './components/LineChart.jsx'
 
 import styles from './index.module.css'
 
-// 是否为开发模式
-const isDebug = false
-// const isDebug = true
-const urlPrefix = isDebug ? '' : 'https://dgps.dbjtech.com'
-
-const formatDate = (timestamp) =>
-	moment(timestamp * 1000).format(`YYYY-MM-DD HH:mm:ss`)
-
-const socket = io(urlPrefix)
-let latestDataArray = []
-
 export default class Home extends Component {
 	// 初始化时计算，否则每次渲染都要重新计算
 	isLargeScreen = window.innerWidth > 768
+
+	// 是否为开发模式
+	isDebug = false
+	// isDebug = true
+
+	urlPrefix = this.isDebug ? '' : 'https://dgps.dbjtech.com'
+
+	formatDate = (timestamp) =>
+		moment(timestamp * 1000).format(`YYYY-MM-DD HH:mm:ss`)
+
+	socket = io(this.urlPrefix)
+
+	latestDataArray = []
 
 	state = {
 		group_list: [],
@@ -46,7 +48,7 @@ export default class Home extends Component {
 	// 请求后端数据
 	componentDidMount() {
 		axios
-			.get(`${urlPrefix}/group`)
+			.get(`${this.urlPrefix}/group`)
 			.then((res) => {
 				const group_list = res.data.group_list
 				this.setState({ group_list })
@@ -54,7 +56,7 @@ export default class Home extends Component {
 			.catch((err) => console.log(err))
 
 		axios
-			.get(`${urlPrefix}/device`)
+			.get(`${this.urlPrefix}/device`)
 			.then((res) => {
 				const device_list = res.data.device_list
 				this.setState({ device_list })
@@ -89,10 +91,10 @@ export default class Home extends Component {
 			// // 最新数据 test02 都不收敛，取中间一部分进行展示
 			// .get(
 			// 	`${
-			// 		urlPrefix
+			// 		this.urlPrefix
 			// 	}/measure?end_timestamp=1516948892`,
 			// )
-			.get(`${urlPrefix}/measure`)
+			.get(`${this.urlPrefix}/measure`)
 			.then((res) => {
 				// 保证数据右边最新
 				const measure_data_list = res.data.measure_data_list.sort(
@@ -124,25 +126,25 @@ export default class Home extends Component {
 			.catch((err) => console.log(err))
 
 		// socket 相关
-		socket.on('connect', () => {
+		this.socket.on('connect', () => {
 			console.log('socket connected')
 		})
 		const throttledFunc = throttle(() => {
-			if (latestDataArray.length > 0) {
-				console.log(latestDataArray)
+			if (this.latestDataArray.length > 0) {
+				console.log(this.latestDataArray)
 				const measure_data_list = this.state.measure_data_list
-				measure_data_list.push(R.flatten(latestDataArray))
+				measure_data_list.push(R.flatten(this.latestDataArray))
 				measure_data_list.sort((a, b) => a.timestamp - b.timestamp)
 				// 重置新数据，避免重复处理
-				latestDataArray = []
+				this.latestDataArray = []
 				this.setState(measure_data_list, () => {
 					this.changeSelection(this.state.selection)
 				})
 			}
 		}, 5000)
 		// 要保证所有新数据都被接收
-		socket.on('event', (data) => {
-			latestDataArray.push(data)
+		this.socket.on('event', (data) => {
+			this.latestDataArray.push(data)
 			throttledFunc()
 		})
 	}
@@ -180,14 +182,20 @@ export default class Home extends Component {
 				ragularPrecision(item.x),
 				ragularPrecision(item.y),
 				ragularPrecision(item.z),
-				formatDate(item.timestamp),
+				this.formatDate(item.timestamp),
 				`终点 ${item.dest_device_sn}`,
 			])(dest_data_list)
 
 			// 构造 glData
 			const glData = [
 				['x', 'y', 'z', '取样时间', '设备'],
-				[0, 0, 0, formatDate(dest_data_list[0].timestamp), `源点 ${srcPoint}`],
+				[
+					0,
+					0,
+					0,
+					this.formatDate(dest_data_list[0].timestamp),
+					`源点 ${srcPoint}`,
+				],
 			]
 
 			// 由于 R.flatten 是递归型铺平，无法直接用在 glData 中
@@ -207,7 +215,9 @@ export default class Home extends Component {
 			const x_list = src_dest_list.map((item) => item.x)
 			const y_list = src_dest_list.map((item) => item.y)
 			const z_list = src_dest_list.map((item) => item.z)
-			const time_list = src_dest_list.map((item) => formatDate(item.timestamp))
+			const time_list = src_dest_list.map((item) =>
+				this.formatDate(item.timestamp),
+			)
 			this.setState({
 				d_list,
 				x_list,
