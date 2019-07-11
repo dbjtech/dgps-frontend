@@ -117,7 +117,7 @@ export default class GLChart extends Component {
 					type: 'line3D',
 					data: [[0, 0, 0], item],
 					lineStyle: {
-						width: 2,
+						width: 4,
 					},
 				})
 			}
