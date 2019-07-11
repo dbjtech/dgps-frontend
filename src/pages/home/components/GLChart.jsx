@@ -43,9 +43,9 @@ export default class GLChart extends Component {
 					glData: this.props.glData,
 				},
 				() => {
-					const echarts_instance = this.echarts_react.getEchartsInstance()
-					echarts_instance.clear()
-					echarts_instance.setOption(this.getOption())
+					// const echarts_instance = this.echarts_react.getEchartsInstance()
+					// echarts_instance.clear()
+					// echarts_instance.setOption(this.getOption())
 				},
 			)
 		}
@@ -54,8 +54,7 @@ export default class GLChart extends Component {
 	EventsDict = {}
 
 	getOption = () => {
-		// 先处理 3D 折现，每条线都要单独的数组
-
+		// 每条 3D 折线都要单独的数组
 		const glData = this.state.glData
 		const option = {
 			grid3D: {
@@ -81,20 +80,6 @@ export default class GLChart extends Component {
 						tooltip: [0, 1, 2, 3, 4],
 					},
 				},
-				// {
-				// 	type: 'line3D',
-				// 	data: this.getLineData(),
-				// 	lineStyle: {
-				// 		width: 2,
-				// 	},
-				// },
-				// {
-				// 	type: 'line3D',
-				// 	data: this.getLineData2(),
-				// 	lineStyle: {
-				// 		width: 2,
-				// 	},
-				// },
 			],
 			// 悬浮信息显示器
 			tooltip: {},
@@ -141,30 +126,7 @@ export default class GLChart extends Component {
 		return option
 	}
 
-	// getLineData = () => [
-	// 	[0, 0, 0],
-	// 	[
-	// 		1.6217125308407137,
-	// 		0.568884563328475,
-	// 		0.020524667516560346,
-	// 		'2018-01-26 14:41:32',
-	// 		'终点 test03',
-	// 	],
-	// ]
-	// getLineData2 = () => [
-	// 	[0, 0, 0],
-	// 	[
-	// 		1.0287799663694828,
-	// 		0.4023813328955168,
-	// 		-2.6467920582981828,
-	// 		'2018-01-26 14:41:32',
-	// 		'终点 test01',
-	// 	],
-	// ]
-
 	render() {
-		// console.log(this.getOption())
-
 		return (
 			<div>
 				<ReactEcharts

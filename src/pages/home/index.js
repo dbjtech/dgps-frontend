@@ -100,7 +100,21 @@ export default class Home extends Component {
 				const measure_data_list = res.data.measure_data_list.sort(
 					(a, b) => a.timestamp - b.timestamp,
 				)
-				// console.log(measure_data_list)
+
+				// // 模拟 socket 传入数据
+				// let timestamp = 1516949843
+				// setInterval(() => {
+				// 	this.latestDataArray.push({
+				// 		d: Math.random(),
+				// 		dest_device_sn: 'test01',
+				// 		src_device_sn: 'test02',
+				// 		timestamp: ++timestamp,
+				// 		x: Math.random(),
+				// 		y: Math.random(),
+				// 		z: Math.random(),
+				// 	})
+				// 	throttledFunc()
+				// }, 1000)
 
 				// // 根据 valid 分组
 				// const measure_data_list_valid = Array(6).fill([])
@@ -131,14 +145,17 @@ export default class Home extends Component {
 		})
 		const throttledFunc = throttle(() => {
 			if (this.latestDataArray.length > 0) {
-				console.log(this.latestDataArray)
+				// 更新数据，添加一部分数据后删除同样熟练的数据
 				const measure_data_list = this.state.measure_data_list
-				measure_data_list.push(R.flatten(this.latestDataArray))
+				this.latestDataArray.map((item) => measure_data_list.push(item))
 				measure_data_list.sort((a, b) => a.timestamp - b.timestamp)
+				measure_data_list.splice(0, this.latestDataArray.length)
+
 				// 重置新数据，避免重复处理
 				this.latestDataArray = []
 				this.setState(measure_data_list, () => {
 					this.changeSelection(this.state.selection)
+					console.log(this.state.measure_data_list.length)
 				})
 			}
 		}, 5000)
