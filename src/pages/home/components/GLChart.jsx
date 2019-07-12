@@ -80,6 +80,9 @@ export default class GLChart extends Component {
 						// 此处调整要展示的信息
 						tooltip: [0, 1, 2, 3, 4],
 					},
+					itemStyle: {
+						color: '#40a9ff',
+					},
 				},
 			],
 			// 悬浮信息显示器
@@ -108,7 +111,7 @@ export default class GLChart extends Component {
 								lineStyle: {
 									width: 4,
 									// 选中颜色
-									color: 'rgb(255, 70, 131)',
+									color: '#36cfc9',
 								},
 						  }
 						: {
@@ -117,7 +120,7 @@ export default class GLChart extends Component {
 								lineStyle: {
 									width: 4,
 									// 默认颜色
-									color: '#d96629',
+									color: '#40a9ff',
 								},
 						  }
 

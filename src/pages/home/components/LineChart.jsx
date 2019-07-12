@@ -96,14 +96,14 @@ export default class LineChart extends Component {
 				symbol: 'none',
 				sampling: 'average',
 				itemStyle: {
-					color: 'rgb(255, 70, 131)',
+					color: '#40a9ff',
 				},
 				lineStyle: {
 					// 重新渲染的是线的样式
 					width: 1,
 				},
 				areaStyle: {
-					color: 'rgb(255, 70, 131)',
+					color: '#40a9ff',
 				},
 				data: this.state.dataList,
 			},
