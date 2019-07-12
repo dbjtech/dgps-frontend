@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { TreeSelect } from 'antd'
+import { debounce } from 'lodash'
 
 export default class SideSelect extends Component {
 	static propTypes = {
@@ -30,12 +31,12 @@ export default class SideSelect extends Component {
 		window.removeEventListener('resize', this.updateWindowDimensions)
 	}
 
-	updateWindowDimensions = () => {
+	updateWindowDimensions = debounce(() => {
 		// 为保证实时响应，做成 state 而不是 props
 		this.setState({
 			width: window.innerWidth,
 		})
-	}
+	}, 1000)
 
 	handleChange = (value) => {
 		this.props.changeSelection(value)

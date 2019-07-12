@@ -13,7 +13,7 @@ import LineChart from './components/LineChart.jsx'
 import styles from './index.module.css'
 
 export default class Home extends Component {
-	// 初始化时计算，否则每次渲染都要重新计算
+	// 初始化时计算，否则每次渲染都要重新计算，而且不能放在 Select 组件中，否则同时触发
 	isLargeScreen = window.innerWidth > 768
 
 	// 是否为开发模式
@@ -94,7 +94,9 @@ export default class Home extends Component {
 			// 		this.urlPrefix
 			// 	}/measure?end_timestamp=1516948892`,
 			// )
-			.get(`${this.urlPrefix}/measure`)
+
+			// 拉取最后 10 分钟的数据，以保证折线图的正常渲染
+			.get(`${this.urlPrefix}/measure?start_timestamp=1516949200`)
 			.then((res) => {
 				// 保证数据右边最新
 				const measure_data_list = res.data.measure_data_list.sort(
@@ -102,25 +104,25 @@ export default class Home extends Component {
 				)
 
 				// 模拟 socket 传入数据
-				let timestamp = 1516949843
-				setInterval(() => {
-					const sn = [1, 2, 3]
-					const rest = ~~(Math.random() * 3)
-					sn.splice(rest - 1, 1)
-					const src = ~~(Math.random() * 2)
-					const dest = 1 - src
+				// let timestamp = 1516949843
+				// setInterval(() => {
+				// 	const sn = [1, 2, 3]
+				// 	const rest = ~~(Math.random() * 3)
+				// 	sn.splice(rest - 1, 1)
+				// 	const src = ~~(Math.random() * 2)
+				// 	const dest = 1 - src
 
-					this.latestDataArray.push({
-						d: Math.random(),
-						dest_device_sn: `test0${sn[dest]}`,
-						src_device_sn: `test0${sn[src]}`,
-						timestamp: ++timestamp,
-						x: Math.random(),
-						y: Math.random(),
-						z: Math.random(),
-					})
-					throttledFunc()
-				}, 1000)
+				// 	this.latestDataArray.push({
+				// 		d: Math.random(),
+				// 		dest_device_sn: `test0${sn[dest]}`,
+				// 		src_device_sn: `test0${sn[src]}`,
+				// 		timestamp: ++timestamp,
+				// 		x: Math.random(),
+				// 		y: Math.random(),
+				// 		z: Math.random(),
+				// 	})
+				// 	throttledFunc()
+				// }, 1000)
 
 				// // 根据 valid 分组
 				// const measure_data_list_valid = Array(6).fill([])
@@ -309,15 +311,7 @@ export default class Home extends Component {
 			<div className={styles.container}>
 				<Row>
 					{/* 粘性定位仅限这个 Row 内 */}
-					<Col
-						xs={0}
-						md={8}
-						style={{
-							position: 'sticky',
-							top: 0,
-							zIndex: 10,
-						}}
-					>
+					<Col xs={0} md={8}>
 						{/* 这个是大屏专用，一直 open 的 */}
 						<SideSelect
 							isLargeScreen={this.isLargeScreen}
@@ -350,28 +344,28 @@ export default class Home extends Component {
 					</Col>
 				</Row>
 				<Row>
-					<Col xs={24} md={6} className={styles.division}>
+					<Col xs={24} md={12} xl={6} className={styles.division}>
 						<LineChart
 							dataList={this.state.d_list}
 							timeList={this.state.time_list}
 							title={`距离变化(单位: 米)`}
 						/>
 					</Col>
-					<Col xs={24} md={6} className={styles.division}>
+					<Col xs={24} md={12} xl={6} className={styles.division}>
 						<LineChart
 							dataList={this.state.x_list}
 							timeList={this.state.time_list}
 							title={`x轴相对位置变化(单位: 米)`}
 						/>
 					</Col>
-					<Col xs={24} md={6} className={styles.division}>
+					<Col xs={24} md={12} xl={6} className={styles.division}>
 						<LineChart
 							dataList={this.state.y_list}
 							timeList={this.state.time_list}
 							title={`y轴相对位置变化(单位: 米)`}
 						/>
 					</Col>
-					<Col xs={24} md={6} className={styles.division}>
+					<Col xs={24} md={12} xl={6} className={styles.division}>
 						<LineChart
 							dataList={this.state.z_list}
 							timeList={this.state.time_list}
