@@ -6,6 +6,7 @@ import 'echarts-gl'
 export default class GLChart extends Component {
 	static propTypes = {
 		glData: PropTypes.array,
+		selection: PropTypes.string,
 	}
 
 	state = {
@@ -83,43 +84,44 @@ export default class GLChart extends Component {
 			],
 			// 悬浮信息显示器
 			tooltip: {},
-			backgroundColor: '#fff',
-			visualMap: {
-				show: false,
-				dimension: 2,
-				min: 0,
-				max: 10,
-				inRange: {
-					color: [
-						'#313695',
-						'#4575b4',
-						'#74add1',
-						'#abd9e9',
-						'#e0f3f8',
-						'#ffffbf',
-						'#fee090',
-						'#fdae61',
-						'#f46d43',
-						'#d73027',
-						'#a50026',
-					],
+			toolbox: {
+				feature: {
+					restore: {},
+					saveAsImage: {},
 				},
 			},
+			backgroundColor: '#fff',
 			dataset: {
 				dimensions: ['x', 'y', 'z', '取样时间', '设备'],
 				source: glData,
 			},
 		}
 
+		const [, , destPoint] = this.props.selection.split('-')
 		glData.forEach((item, index) => {
 			if (index > 1) {
-				option.series.push({
-					type: 'line3D',
-					data: [[0, 0, 0], item],
-					lineStyle: {
-						width: 4,
-					},
-				})
+				let data =
+					destPoint && new RegExp(destPoint).test(item[4])
+						? {
+								type: 'line3D',
+								data: [[0, 0, 0], item],
+								lineStyle: {
+									width: 4,
+									// 选中颜色
+									color: 'rgb(255, 70, 131)',
+								},
+						  }
+						: {
+								type: 'line3D',
+								data: [[0, 0, 0], item],
+								lineStyle: {
+									width: 4,
+									// 默认颜色
+									color: '#d96629',
+								},
+						  }
+
+				option.series.push(data)
 			}
 		})
 

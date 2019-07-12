@@ -101,20 +101,26 @@ export default class Home extends Component {
 					(a, b) => a.timestamp - b.timestamp,
 				)
 
-				// // 模拟 socket 传入数据
-				// let timestamp = 1516949843
-				// setInterval(() => {
-				// 	this.latestDataArray.push({
-				// 		d: Math.random(),
-				// 		dest_device_sn: 'test01',
-				// 		src_device_sn: 'test02',
-				// 		timestamp: ++timestamp,
-				// 		x: Math.random(),
-				// 		y: Math.random(),
-				// 		z: Math.random(),
-				// 	})
-				// 	throttledFunc()
-				// }, 1000)
+				// 模拟 socket 传入数据
+				let timestamp = 1516949843
+				setInterval(() => {
+					const sn = [1, 2, 3]
+					const rest = ~~(Math.random() * 3)
+					sn.splice(rest - 1, 1)
+					const src = ~~(Math.random() * 2)
+					const dest = 1 - src
+
+					this.latestDataArray.push({
+						d: Math.random(),
+						dest_device_sn: `test0${sn[dest]}`,
+						src_device_sn: `test0${sn[src]}`,
+						timestamp: ++timestamp,
+						x: Math.random(),
+						y: Math.random(),
+						z: Math.random(),
+					})
+					throttledFunc()
+				}, 1000)
 
 				// // 根据 valid 分组
 				// const measure_data_list_valid = Array(6).fill([])
@@ -155,7 +161,6 @@ export default class Home extends Component {
 				this.latestDataArray = []
 				this.setState(measure_data_list, () => {
 					this.changeSelection(this.state.selection)
-					console.log(this.state.measure_data_list.length)
 				})
 			}
 		}, 5000)
@@ -338,7 +343,10 @@ export default class Home extends Component {
 						/>
 					</Col>
 					<Col xs={24} md={16} className={styles.division}>
-						<GLChart glData={this.state.glData} />
+						<GLChart
+							glData={this.state.glData}
+							selection={this.state.selection}
+						/>
 					</Col>
 				</Row>
 				<Row>
