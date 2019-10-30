@@ -12,6 +12,55 @@ import LineChart from './components/LineChart.jsx'
 
 import styles from './index.module.css'
 
+const promiseSetState = (that, state) =>
+  new Promise((resolve, reject) => {
+    that.setState(state, () => resolve())
+  })
+
+const fetchData = async (that) => {
+  const groupRes = await axios.get(`${that.urlPrefix}/group`)
+  const group_list = groupRes.data.group_list
+  await promiseSetState(that, { group_list })
+
+  const deviceRes = await axios.get(`${that.urlPrefix}/device`)
+  const device_list = deviceRes.data.device_list
+  await promiseSetState(that, { device_list })
+
+  // 利用 Ramda 进行数据处理，得到 GL 需要的数据结构
+  const groupedDevices = R.groupBy((device) => device.group_name)(device_list)
+  const glTree = R.map(
+    R.pipe(
+      R.map(
+        R.pipe(
+          R.omit(['group_name']),
+          R.invertObj,
+        ),
+      ),
+
+      R.mergeAll,
+
+      R.map(() => []),
+    ),
+  )(groupedDevices)
+  await promiseSetState(that, { glTree })
+
+  const measureRes = await axios.get(
+    `${that.urlPrefix}/measure?start_timestamp=1512115983`,
+  )
+  const measure_data_list = measureRes.data.measure_data_list.sort(
+    (a, b) => a.timestamp - b.timestamp,
+  )
+  await promiseSetState(that, { measure_data_list })
+  // 读取数据之后默认展示一组先
+  const selection = `${that.state.group_list[0].name}-${that.state.device_list[0].sn}-${that.state.device_list[1].sn}`
+  console.log(selection)
+  that.changeSelection(selection)
+  promiseSetState(that, { selection })
+
+  // 在此处只调用一次 getTreeData, 避免反复运算
+  that.treeData = that.getTreeData()
+}
+
 export default class Home extends Component {
   // 初始化时计算，否则每次渲染都要重新计算，而且不能放在 Select 组件中，否则同时触发
   isLargeScreen = window.innerWidth > 768
@@ -47,66 +96,7 @@ export default class Home extends Component {
 
   // 请求后端数据
   componentDidMount() {
-    axios
-      .get(`${this.urlPrefix}/group`)
-      .then((res) => {
-        const group_list = res.data.group_list
-        this.setState({ group_list })
-        console.log(group_list)
-      })
-      .catch((err) => console.log(err))
-
-    axios
-      .get(`${this.urlPrefix}/device`)
-      .then((res) => {
-        const device_list = res.data.device_list
-        this.setState({ device_list })
-        console.log(device_list)
-
-        // 利用 Ramda 进行数据处理，得到 GL 需要的数据结构
-        const groupedDevices = R.groupBy((device) => device.group_name)(
-          device_list,
-        )
-        const glTree = R.map(
-          R.pipe(
-            R.map(
-              R.pipe(
-                R.omit(['group_name']),
-                R.invertObj,
-              ),
-            ),
-
-            R.mergeAll,
-
-            R.map(() => []),
-          ),
-        )(groupedDevices)
-
-        this.setState({ glTree })
-      })
-      .catch((err) => console.log(err))
-
-    axios
-      .get(`${this.urlPrefix}/measure?start_timestamp=1512115983`)
-      .then((res) => {
-        // debugger
-        // 保证数据右边最新
-        const measure_data_list = res.data.measure_data_list.sort(
-          (a, b) => a.timestamp - b.timestamp,
-        )
-
-        this.setState({ measure_data_list }, () => {
-          console.log(measure_data_list)
-          // 读取数据之后默认展示一组先
-          const selection = `${this.state.group_list[0].name}-${this.state.device_list[0].sn}-${this.state.device_list[1].sn}`
-          this.changeSelection(selection)
-          this.setState({ selection })
-
-          // 在此处只调用一次 getTreeData, 避免反复运算
-          this.treeData = this.getTreeData()
-        })
-      })
-      .catch((err) => console.log(err))
+    fetchData(this)
 
     // socket 相关
     this.socket.on('connect', () => {
@@ -114,7 +104,7 @@ export default class Home extends Component {
     })
     const throttledFunc = throttle(() => {
       if (this.latestDataArray.length > 0) {
-        // 更新数据，添加一部分数据后删除同样熟练的数据
+        // 更新数据，添加一部分数据后删除同样数量的数据
         const measure_data_list = this.state.measure_data_list
         this.latestDataArray.map((item) => measure_data_list.push(item))
         measure_data_list.sort((a, b) => a.timestamp - b.timestamp)
@@ -151,14 +141,16 @@ export default class Home extends Component {
       )(this.state.glTree)
 
       // 调用 R.find 查找源点到终点的信息
-      const dest_data_list = R.map((item) =>
-        R.findLast(
+      const dest_data_list = R.map((item) => {
+        console.log('src: ', srcPoint)
+        console.log('dist: ', item)
+        return R.findLast(
           R.both(
             R.propEq('src_device_sn', srcPoint),
             R.propEq('dest_device_sn', item),
           ),
-        )(this.state.measure_data_list),
-      )(dest_list)
+        )(this.state.measure_data_list)
+      })(dest_list)
 
       const ragularPrecision = (value) => (value < 1e-100 ? 0 : value)
 
@@ -262,7 +254,6 @@ export default class Home extends Component {
         }
       }
 
-      // console.log(treeData)
       return treeData
     }
     return null
