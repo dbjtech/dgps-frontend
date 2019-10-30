@@ -45,20 +45,32 @@ const fetchData = async (that) => {
   await promiseSetState(that, { glTree })
 
   const measureRes = await axios.get(
-    `${that.urlPrefix}/measure?start_timestamp=1512115983`,
+    `${that.urlPrefix}/measure?start_timestamp=1512115984`,
   )
   const measure_data_list = measureRes.data.measure_data_list.sort(
     (a, b) => a.timestamp - b.timestamp,
   )
   await promiseSetState(that, { measure_data_list })
+  console.log(measure_data_list)
   // 读取数据之后默认展示一组先
-  const selection = `${that.state.group_list[0].name}-${that.state.device_list[0].sn}-${that.state.device_list[1].sn}`
-  console.log(selection)
+  const selection = `${group_list[0].name}-${measure_data_list[0].src_device_sn}-${measure_data_list[0].dest_device_sn}`
   that.changeSelection(selection)
   promiseSetState(that, { selection })
 
   // 在此处只调用一次 getTreeData, 避免反复运算
   that.treeData = that.getTreeData()
+}
+
+const formatDate = (timestamp) =>
+  moment(timestamp * 1000).format(`YYYY-MM-DD HH:mm:ss`)
+
+const setDefaultTimestamp = (dest_data_list) => {
+  console.log(dest_data_list)
+  for (let data in dest_data_list) {
+    if (data) {
+      return formatDate(data.timestamp)
+    }
+  }
 }
 
 export default class Home extends Component {
@@ -70,9 +82,6 @@ export default class Home extends Component {
   isDebug = true
 
   urlPrefix = this.isDebug ? '' : 'https://dgps.dbjtech.com'
-
-  formatDate = (timestamp) =>
-    moment(timestamp * 1000).format(`YYYY-MM-DD HH:mm:ss`)
 
   socket = io(this.urlPrefix)
 
@@ -142,8 +151,6 @@ export default class Home extends Component {
 
       // 调用 R.find 查找源点到终点的信息
       const dest_data_list = R.map((item) => {
-        console.log('src: ', srcPoint)
-        console.log('dist: ', item)
         return R.findLast(
           R.both(
             R.propEq('src_device_sn', srcPoint),
@@ -154,30 +161,28 @@ export default class Home extends Component {
 
       const ragularPrecision = (value) => (value < 1e-100 ? 0 : value)
 
-      debugger
       // 构造 glData 需要的终点信息
-      const destDataArray = R.map((item) => [
-        ragularPrecision(item.x),
-        ragularPrecision(item.y),
-        ragularPrecision(item.z),
-        this.formatDate(item.timestamp),
-        `终点 ${item.dest_device_sn}`,
-      ])(dest_data_list)
+      const destDataArray = R.map(
+        (item) =>
+          item && [
+            ragularPrecision(item.x),
+            ragularPrecision(item.y),
+            ragularPrecision(item.z),
+            formatDate(item.timestamp),
+            `终点 ${item.dest_device_sn}`,
+          ],
+      )(dest_data_list)
 
       // 构造 glData
       const glData = [
         ['x', 'y', 'z', '取样时间', '设备'],
-        [
-          0,
-          0,
-          0,
-          this.formatDate(dest_data_list[0].timestamp),
-          `源点 ${srcPoint}`,
-        ],
+        [0, 0, 0, setDefaultTimestamp(dest_data_list), `源点 ${srcPoint}`],
       ]
 
       // 由于 R.flatten 是递归型铺平，无法直接用在 glData 中
-      R.reduce((acc, cur) => glData.push(cur))(glData)(destDataArray)
+      R.reduce((acc, cur) => glData.push(cur))(glData)(
+        destDataArray.filter((item) => !!item),
+      )
 
       this.setState({ glData, selection })
     }
@@ -193,9 +198,7 @@ export default class Home extends Component {
       const x_list = src_dest_list.map((item) => item.x)
       const y_list = src_dest_list.map((item) => item.y)
       const z_list = src_dest_list.map((item) => item.z)
-      const time_list = src_dest_list.map((item) =>
-        this.formatDate(item.timestamp),
-      )
+      const time_list = src_dest_list.map((item) => formatDate(item.timestamp))
       this.setState({
         d_list,
         x_list,
