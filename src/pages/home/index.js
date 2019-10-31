@@ -78,8 +78,8 @@ export default class Home extends Component {
   isLargeScreen = window.innerWidth > 768
 
   // 是否为开发模式
-  // isDebug = false
-  isDebug = true
+  isDebug = false
+  // isDebug = true
 
   urlPrefix = this.isDebug ? '' : 'https://dgps.dbjtech.com'
 
@@ -263,6 +263,9 @@ export default class Home extends Component {
   }
 
   render() {
+    // 由于 this 指针问题，treeData 本应只运算一次的，被迫放在 render 中
+    this.treeData = this.getTreeData()
+
     return (
       <div className={styles.container}>
         <Row>
